@@ -2,6 +2,8 @@ const passport = require('koa-passport');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const Router = require('koa-router');
 // const userCtrl = require('./user.ctrl');
+const User = require('models/user');
+const UserModel = require('models/user-model');
 
 // Load .env file
 require('dotenv').config();
@@ -32,9 +34,22 @@ passport.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: '/api/users/auth/google/callback',
     },
-    (accessToken, refreshToken, profile, done) => {
-      // TODO database fetch and write
-      done(null, profile);
+    async (accessToken, refreshToken, profile, done) => {
+      const userEmail = profile.emails[0].value;
+      let user = await User.findByEmail(userEmail);
+      if (!user) {
+        user = User({
+          email: userEmail,
+          provider: 'google',
+          providerAccessToken: accessToken,
+          providerId: profile.id,
+          nickname: 'test', // TODO
+        });
+      } else {
+        user.lastLoginAt = Date.now();
+      }
+      await user.save();
+      done(null, new UserModel(user.id, user.email, user.nickname));
     },
   ),
 );
