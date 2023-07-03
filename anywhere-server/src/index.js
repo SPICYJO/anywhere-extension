@@ -2,6 +2,7 @@ const Koa = require('koa');
 const Router = require('koa-router');
 const bodyParser = require('koa-bodyparser');
 const api = require('./api');
+const passport = require('koa-passport');
 
 // Load .env file
 require('dotenv').config();
@@ -9,6 +10,9 @@ require('dotenv').config();
 // Koa settings
 const app = new Koa();
 const router = new Router();
+
+// Initialize Passport (Auth)
+app.use(passport.initialize());
 
 // Api settings
 router.use('/api', api.routes());
