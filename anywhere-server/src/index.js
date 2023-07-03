@@ -1,22 +1,21 @@
 const Koa = require('koa');
 const Router = require('koa-router');
 const bodyParser = require('koa-bodyparser');
-
 const api = require('./api');
 
+// Load .env file
 require('dotenv').config();
 
+// Koa settings
 const app = new Koa();
 const router = new Router();
 
+// Api settings
 router.use('/api', api.routes());
-
 app.use(bodyParser());
-
 app.use(router.routes()).use(router.allowedMethods());
 
-const port = process.env.PORT || 4000;
-
+// MongoDB settings
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 mongoose
@@ -31,9 +30,8 @@ mongoose
     console.error(e);
   });
 
-const comment = require('models/comment');
-console.log(comment);
-
+// Listen to port
+const port = process.env.PORT || 4000;
 app.listen(port, () => {
   console.log('listening to port 4000');
 });
