@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Anywhere comment extension",
+  "description": "Enable comments on any web page. You can share thoughts with others with this extension.",
+  "version": "1.0",
+  "icons": {
+    "16": "images/icon-16.png",
+    "32": "images/icon-32.png",
+    "48": "images/icon-48.png",
+    "128": "images/icon-128.png"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "service-worker.js",
+    "type": "module"
+  },
+  "permissions": ["identity", "storage"],
+  "host_permissions": ["http://localhost:4000/*"],
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjVmvM1qWHPoFzlvUDr8GXDEpjz8gkCv92m1lAadDeJQzlkLE3fWkTzDU6GBDvm9pVlih3LxnLDvQs4pNOjHdI8g0awUIdBO1hCG36gZTh1aK4dnHCQqwk4kogcWFFjQleYRQAozSVpE2bDl4nE+q0MizLm4j0/5zd4Wh5SeVthzFLOmWA5ddho8h3DtGG07OsbxLWt9jBtwlx3OhdSIKLO6v3NMxicnJUYaDG03ccnBSxJRDxZIjxIaeBTuaTJLfD7mkK7CFBhXs0TV2uHKyXlkIgwl4j/I3wXmHUA4q+D1IlsO6b/D7900YaQ/KsramkrJ15KBlLP4G8tkhhMqSfwIDAQAB"
+}
