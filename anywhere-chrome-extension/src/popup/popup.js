@@ -1,3 +1,10 @@
+import * as constants from "../utils/constants.js";
+
+fetchComments();
+updateLoginUI();
+updateUrlUI();
+
+// UI event handlers
 document.getElementById("google-signin").addEventListener("click", () => {
   console.log("sign in called");
   chrome.runtime.sendMessage({ action: "startGoogleSignIn" });
@@ -7,10 +14,21 @@ document
   .getElementById("google-signout")
   .addEventListener("click", async () => {
     console.log("sign out called");
-    await chrome.storage.local.remove("jwtToken");
+    await chrome.storage.local.remove(constants.STORAGE_KEY_AUTH_ACCESS_TOKEN);
     await updateLoginUI();
   });
 
+document.getElementById("submit-button").addEventListener("click", async () => {
+  console.log("comment register called!");
+  const content = document.getElementById("content-input").value;
+  const returnValue = await chrome.runtime.sendMessage({
+    action: constants.ACTION_REGISTER_COMMENT,
+    content: content,
+  });
+  console.log(returnValue);
+});
+
+// message handlers
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   if (message.action === "authResult") {
     // Handle the authentication result or JWT response
@@ -22,43 +40,38 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   }
 });
 
-document.getElementById("submit-button").addEventListener("click", () => {
-  console.log("comment register called!");
-  const content = document.getElementById("content-input").value;
-  chrome.runtime.sendMessage({
-    action: "registerComment",
-    content: content,
-  });
-});
-
-fetchComments();
-updateLoginUI();
-updateUrlUI();
+// helper functions
 
 /**
  * Fetch comments
  */
 async function fetchComments() {
-  chrome.runtime.sendMessage({ action: 'fetchComments' }, function(response) {
-    // Handle the response from the background script
-    if (response.success) {
-      // Data fetched successfully, do something with it
-      console.log(response.data);
-    } else {
-      // Error occurred while fetching data
-      console.error(response.error);
+  chrome.runtime.sendMessage(
+    { action: constants.ACTION_FETCH_COMMENTS },
+    function (response) {
+      // Handle the response from the background script
+      if (response.success) {
+        // Data fetched successfully, do something with it
+        console.log(response.data);
+      } else {
+        // Error occurred while fetching data
+        console.error(response.error);
+      }
     }
-  });
+  );
 }
-
 
 /**
  * Update log in status UI
  */
 async function updateLoginUI() {
-  let jwtToken = await chrome.storage.local.get("jwtToken");
+  let jwtToken = await chrome.storage.local.get(
+    constants.STORAGE_KEY_AUTH_ACCESS_TOKEN
+  );
   console.log(jwtToken);
-  let jwtTokenExists = jwtToken && jwtToken.hasOwnProperty("jwtToken");
+  let jwtTokenExists =
+    jwtToken &&
+    jwtToken.hasOwnProperty(constants.STORAGE_KEY_AUTH_ACCESS_TOKEN);
   debugger;
   if (jwtTokenExists) {
     document.getElementById("google-signin").classList.add("hidden");
