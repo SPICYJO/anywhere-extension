@@ -1,4 +1,6 @@
 import * as constants from "../utils/constants.js";
+import { getTimeSinceString } from "../utils/date-utils.js";
+import { getCanonicalUrl } from "../utils/url-utils.js";
 
 fetchComments();
 updateLoginUI();
@@ -21,11 +23,37 @@ document
 document.getElementById("submit-button").addEventListener("click", async () => {
   console.log("comment register called!");
   const content = document.getElementById("content-input").value;
-  const returnValue = await chrome.runtime.sendMessage({
+  const response = await chrome.runtime.sendMessage({
     action: constants.ACTION_REGISTER_COMMENT,
     content: content,
   });
-  console.log(returnValue);
+  if (response.success) {
+    console.log(response.data);
+    const nowString = new Date().toISOString();
+
+    const commentList = document.querySelector(".comment-list");
+
+    let comment = response.data;
+    const template = document.querySelector("#comment-template");
+    const commentInstance = document.importNode(template.content, true);
+
+    const authorElement = commentInstance.querySelector(".comment-author");
+    authorElement.textContent = comment.userNickname;
+
+    const textElement = commentInstance.querySelector(".comment-text");
+    textElement.textContent = comment.content;
+
+    const createdDateElement =
+      commentInstance.querySelector(".registered-date");
+    createdDateElement.textContent = getTimeSinceString(
+      comment.createdAt,
+      nowString
+    );
+
+    commentList.insertBefore(commentInstance, commentList.firstChild);
+  } else {
+    console.log("Register failed...");
+  }
 });
 
 // message handlers
@@ -46,19 +74,41 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
  * Fetch comments
  */
 async function fetchComments() {
-  chrome.runtime.sendMessage(
-    { action: constants.ACTION_FETCH_COMMENTS },
-    function (response) {
-      // Handle the response from the background script
-      if (response.success) {
-        // Data fetched successfully, do something with it
-        console.log(response.data);
-      } else {
-        // Error occurred while fetching data
-        console.error(response.error);
-      }
+  const response = await chrome.runtime.sendMessage({
+    action: constants.ACTION_FETCH_COMMENTS,
+  });
+
+  if (response.success) {
+    console.log(response.data);
+    const commentList = document.querySelector(".comment-list");
+    while (commentList.firstChild) {
+      commentList.removeChild(commentList.firstChild);
     }
-  );
+
+    const nowString = new Date().toISOString();
+
+    for (let comment of response.data) {
+      const template = document.querySelector("#comment-template");
+      const commentInstance = document.importNode(template.content, true);
+
+      const authorElement = commentInstance.querySelector(".comment-author");
+      authorElement.textContent = comment.userNickname;
+
+      const textElement = commentInstance.querySelector(".comment-text");
+      textElement.textContent = comment.content;
+
+      const createdDateElement =
+        commentInstance.querySelector(".registered-date");
+      createdDateElement.textContent = getTimeSinceString(
+        comment.createdAt,
+        nowString
+      );
+
+      commentList.appendChild(commentInstance);
+    }
+  } else {
+    console.log("Fetch failed...");
+  }
 }
 
 /**
@@ -89,7 +139,9 @@ async function updateUrlUI() {
   const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
   const currentTab = tabs[0];
 
-  document.getElementById("current-url").innerText = currentTab.url;
+  document.getElementById("current-url").innerText = getCanonicalUrl(
+    currentTab.url
+  );
 }
 
 function getQueryParam(url, param) {

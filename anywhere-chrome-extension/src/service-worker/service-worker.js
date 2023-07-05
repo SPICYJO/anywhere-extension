@@ -24,78 +24,96 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-// Handle comments fetch
+// Comment action handler
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  if (request.action === constants.ACTION_FETCH_COMMENTS) {
-    // Perform the data fetch here
-    fetch(`${constants.SERVER_ADDRESS}/api/comments`)
-      .then((response) => response.json())
-      .then((data) => {
-        // Return the fetched data to the content script
-        sendResponse({ success: true, data: data });
-      })
-      .catch((error) => {
-        // Return the error message to the content script
-        sendResponse({ success: false, error: error.message });
-      });
-
-    // Indicate that the response will be sent asynchronously
-    return true;
-  }
-});
-
-// Handle comment register
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  (async function () {
-    if (request.action === constants.ACTION_REGISTER_COMMENT) {
-      let jwtToken = await chrome.storage.local.get(
-        constants.STORAGE_KEY_AUTH_ACCESS_TOKEN
-      );
-      let jwtTokenExists =
-        jwtToken &&
-        jwtToken.hasOwnProperty(constants.STORAGE_KEY_AUTH_ACCESS_TOKEN);
-      if (!jwtTokenExists) {
-        console.log("Please sign in...");
-        return;
-      }
-
-      try {
-        const tabs = await chrome.tabs.query({
-          active: true,
-          currentWindow: true,
-        });
-        const currentTab = tabs[0];
-
-        const response = await fetch(
-          `${constants.SERVER_ADDRESS}/api/comments`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${
-                jwtToken[constants.STORAGE_KEY_AUTH_ACCESS_TOKEN]
-              }`,
-            },
-            body: JSON.stringify({
-              targetCanonicalUrl: getCanonicalUrl(currentTab.url),
-              targetFullUrl: currentTab.url,
-              content: request.content,
-              schemeAndHostAndPort: getSchemeAndHostAndPort(currentTab.url),
-            }),
-          }
+  switch (request.action) {
+    // Handle comment register
+    case constants.ACTION_REGISTER_COMMENT:
+      (async function () {
+        let jwtToken = await chrome.storage.local.get(
+          constants.STORAGE_KEY_AUTH_ACCESS_TOKEN
         );
-
-        if (!response.ok) {
-          throw new Error("Request failed with status: " + response.status);
+        let jwtTokenExists =
+          jwtToken &&
+          jwtToken.hasOwnProperty(constants.STORAGE_KEY_AUTH_ACCESS_TOKEN);
+        if (!jwtTokenExists) {
+          console.log("Please sign in...");
+          return;
         }
 
-        const data = await response.json();
-        sendResponse({ success: true, data: data });
-      } catch (error) {
-        sendResponse({ success: false, error: error.message });
-      }
-    }
-  })();
+        try {
+          const tabs = await chrome.tabs.query({
+            active: true,
+            currentWindow: true,
+          });
+          const currentTab = tabs[0];
+
+          const response = await fetch(
+            `${constants.SERVER_ADDRESS}/api/comments`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${
+                  jwtToken[constants.STORAGE_KEY_AUTH_ACCESS_TOKEN]
+                }`,
+              },
+              body: JSON.stringify({
+                targetCanonicalUrl: getCanonicalUrl(currentTab.url),
+                targetFullUrl: currentTab.url,
+                content: request.content,
+                schemeAndHostAndPort: getSchemeAndHostAndPort(currentTab.url),
+              }),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Request failed with status: " + response.status);
+          }
+
+          const data = await response.json();
+          sendResponse({ success: true, data: data });
+        } catch (error) {
+          sendResponse({ success: false, error: error.message });
+        }
+      })();
+      break;
+    // Handle comments fetch
+    case constants.ACTION_FETCH_COMMENTS:
+      (async function () {
+        try {
+          const tabs = await chrome.tabs.query({
+            active: true,
+            currentWindow: true,
+          });
+          const currentTab = tabs[0];
+
+          const page = request.page ?? 0;
+          const size = request.size ?? 10;
+
+          const response = await fetch(
+            `${
+              constants.SERVER_ADDRESS
+            }/api/comments?targetCanonicalUrl=${encodeURIComponent(
+              getCanonicalUrl(currentTab.url)
+            )}&page=${page}&size=${size}`
+          );
+
+          if (!response.ok) {
+            throw new Error("Request failed with status: " + response.status);
+          }
+
+          const data = await response.json();
+          sendResponse({ success: true, data: data });
+        } catch (error) {
+          sendResponse({ success: false, error: error.message });
+        }
+      })();
+      break;
+
+    default:
+      break;
+  }
 
   return true;
 });

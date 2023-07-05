@@ -11,37 +11,23 @@
 
     <div class="comment-section">
       <h2>Comments</h2>
-      <div class="comment-list">
-        <template>
-          <div class="comment">
-            <div class="comment-avatar"></div>
-            <div class="comment-content">
+      <template id="comment-template">
+        <div class="comment">
+          <div class="comment-avatar"></div>
+          <div class="comment-content">
+            <div class="space-between">
               <div class="comment-author">John Doe</div>
-              <div class="comment-text">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              <div class="comment-dates">
+                <div class="registered-date">2 days ago</div>
               </div>
             </div>
-          </div>
-        </template>
-        <div class="comment">
-          <div class="comment-avatar"></div>
-          <div class="comment-content">
-            <div class="comment-author">John Doe</div>
             <div class="comment-text">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit.
             </div>
           </div>
         </div>
-        <div class="comment">
-          <div class="comment-avatar"></div>
-          <div class="comment-content">
-            <div class="comment-author">Jane Smith</div>
-            <div class="comment-text">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-            </div>
-          </div>
-        </div>
-      </div>
+      </template>
+      <div class="comment-list"></div>
       <div class="comment-form">
         <textarea id="content-input" placeholder="Write a comment"></textarea>
         <button id="submit-button">Submit</button>

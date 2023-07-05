@@ -56,3 +56,14 @@
   border: none;
   cursor: pointer;
 }
+
+.registered-date,
+.modified-date {
+  font-size: 12px;
+  color: #888;
+}
+
+.space-between {
+  display: flex;
+  justify-content: space-between;
+}
