@@ -23,6 +23,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 });
 
 updateLoginUI();
+updateUrlUI();
 
 async function updateLoginUI() {
   let jwtToken = await chrome.storage.local.get("jwtToken");
@@ -36,6 +37,13 @@ async function updateLoginUI() {
     document.getElementById("google-signin").classList.remove("hidden");
     document.getElementById("google-signout").classList.add("hidden");
   }
+}
+
+async function updateUrlUI() {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  const currentTab = tabs[0];
+
+  document.getElementById("current-url").innerText = currentTab.url;
 }
 
 function getQueryParam(url, param) {
