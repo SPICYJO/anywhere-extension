@@ -7,4 +7,5 @@ export const STORAGE_KEY_AUTH_ACCESS_TOKEN = "jwtToken";
 // Message action types
 export const ACTION_FETCH_COMMENTS = "fetchComments";
 export const ACTION_REGISTER_COMMENT = "registerComment";
+export const ACTION_EDIT_COMMENT = "editComment";
 export const ACTION_DELETE_COMMENT = "deleteComment";

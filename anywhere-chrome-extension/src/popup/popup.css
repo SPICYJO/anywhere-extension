@@ -65,7 +65,7 @@
 }
 
 .delete-button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   background-color: #ff6347;
@@ -77,6 +77,22 @@
 }
 
 .delete-button i {
+  margin-right: 5px;
+}
+
+.edit-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #4169E1;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.edit-button i {
   margin-right: 5px;
 }
 

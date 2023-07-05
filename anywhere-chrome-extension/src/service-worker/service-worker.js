@@ -78,6 +78,48 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         }
       })();
       break;
+    // Handle comment edit
+    case constants.ACTION_EDIT_COMMENT:
+      (async function () {
+        let jwtToken = await chrome.storage.local.get(
+          constants.STORAGE_KEY_AUTH_ACCESS_TOKEN
+        );
+        let jwtTokenExists =
+          jwtToken &&
+          jwtToken.hasOwnProperty(constants.STORAGE_KEY_AUTH_ACCESS_TOKEN);
+        if (!jwtTokenExists) {
+          console.log("Please sign in...");
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            `${constants.SERVER_ADDRESS}/api/comments/${request.commentId}`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${
+                  jwtToken[constants.STORAGE_KEY_AUTH_ACCESS_TOKEN]
+                }`,
+              },
+              body: JSON.stringify({
+                content: request.commentContent,
+              }),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Request failed with status: " + response.status);
+          }
+
+          const data = await response.json();
+          sendResponse({ success: true, data: data });
+        } catch (error) {
+          sendResponse({ success: false, error: error.message });
+        }
+      })();
+      break;
     // Handle comment delete
     case constants.ACTION_DELETE_COMMENT:
       (async function () {

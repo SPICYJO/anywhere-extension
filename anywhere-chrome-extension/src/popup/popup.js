@@ -54,8 +54,40 @@ document.getElementById("submit-button").addEventListener("click", async () => {
       nowString
     );
 
+    const editButton = commentInstance.querySelector(".edit-button");
+    editButton.classList.remove("hidden");
+    editButton.addEventListener("click", async function () {
+      let editedContent = prompt("Please update the comment.", comment.content);
+      if (editedContent) {
+        const response = await chrome.runtime.sendMessage({
+          action: constants.ACTION_EDIT_COMMENT,
+          commentId: comment._id,
+          commentContent: editedContent,
+        });
+        if (response.success) {
+          textElement.textContent = editedContent;
+        } else {
+          console.log("Edit failed...");
+        }
+      }
+    });
+
     const deleteButton = commentInstance.querySelector(".delete-button");
     deleteButton.classList.remove("hidden");
+    deleteButton.addEventListener("click", async function () {
+      let confirmed = confirm("Are you sure to delete this comment?");
+      if (confirmed) {
+        const response = await chrome.runtime.sendMessage({
+          action: constants.ACTION_DELETE_COMMENT,
+          commentId: comment._id,
+        });
+        if (response.success) {
+          commentInstance.remove();
+        } else {
+          console.log("Delete failed...");
+        }
+      }
+    });
 
     commentList.insertBefore(commentInstance, commentList.firstChild);
   } else {
@@ -124,9 +156,30 @@ async function fetchComments() {
         nowString
       );
 
+      const editButton = commentInstance.querySelector(".edit-button");
       const deleteButton = commentInstance.querySelector(".delete-button");
 
       if (comment.userId === currentUserId) {
+        editButton.classList.remove("hidden");
+        editButton.addEventListener("click", async function () {
+          let editedContent = prompt(
+            "Please update the comment.",
+            comment.content
+          );
+          if (editedContent) {
+            const response = await chrome.runtime.sendMessage({
+              action: constants.ACTION_EDIT_COMMENT,
+              commentId: comment._id,
+              commentContent: editedContent,
+            });
+            if (response.success) {
+              textElement.textContent = editedContent;
+            } else {
+              console.log("Edit failed...");
+            }
+          }
+        });
+
         deleteButton.classList.remove("hidden");
         deleteButton.addEventListener("click", async function () {
           let confirmed = confirm("Are you sure to delete this comment?");
