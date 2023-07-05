@@ -74,7 +74,10 @@ users.get(
     const token = jwt.sign({ user: ctx.state.user }, process.env.JWT_SECRET);
 
     // Redirect to the profile page with the token as a query parameter
-    ctx.redirect(`/profile?token=${token}`);
+    ctx.redirect(
+      `https://${process.env.CHROME_EXTENSION_ID}.chromiumapp.org/api/users/auth/google/callback?token=${token}`,
+    );
+    // ctx.redirect(`/profile?token=${token}`);
   },
 );
 
