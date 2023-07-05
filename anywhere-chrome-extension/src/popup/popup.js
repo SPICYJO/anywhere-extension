@@ -1,6 +1,7 @@
 import * as constants from "../utils/constants.js";
 import { getTimeSinceString } from "../utils/date-utils.js";
 import { getCanonicalUrl } from "../utils/url-utils.js";
+import { jwt_decode } from "../vendors/jwt-decode.js";
 
 fetchComments();
 updateLoginUI();
@@ -35,7 +36,10 @@ document.getElementById("submit-button").addEventListener("click", async () => {
 
     let comment = response.data;
     const template = document.querySelector("#comment-template");
-    const commentInstance = document.importNode(template.content, true);
+    const commentInstance = document.importNode(
+      template.content.firstElementChild,
+      true
+    );
 
     const authorElement = commentInstance.querySelector(".comment-author");
     authorElement.textContent = comment.userNickname;
@@ -49,6 +53,9 @@ document.getElementById("submit-button").addEventListener("click", async () => {
       comment.createdAt,
       nowString
     );
+
+    const deleteButton = commentInstance.querySelector(".delete-button");
+    deleteButton.classList.remove("hidden");
 
     commentList.insertBefore(commentInstance, commentList.firstChild);
   } else {
@@ -81,6 +88,16 @@ async function fetchComments() {
   if (response.success) {
     console.log(response.data);
     const commentList = document.querySelector(".comment-list");
+
+    let jwtToken = (
+      await chrome.storage.local.get(constants.STORAGE_KEY_AUTH_ACCESS_TOKEN)
+    )[constants.STORAGE_KEY_AUTH_ACCESS_TOKEN];
+    console.log(jwtToken);
+
+    let decodedAuthInfo = jwtToken ? jwt_decode(jwtToken) : null;
+    console.log(decodedAuthInfo);
+    let currentUserId = decodedAuthInfo ? decodedAuthInfo.user.id : null;
+
     while (commentList.firstChild) {
       commentList.removeChild(commentList.firstChild);
     }
@@ -89,7 +106,10 @@ async function fetchComments() {
 
     for (let comment of response.data) {
       const template = document.querySelector("#comment-template");
-      const commentInstance = document.importNode(template.content, true);
+      const commentInstance = document.importNode(
+        template.content.firstElementChild,
+        true
+      );
 
       const authorElement = commentInstance.querySelector(".comment-author");
       authorElement.textContent = comment.userNickname;
@@ -103,6 +123,26 @@ async function fetchComments() {
         comment.createdAt,
         nowString
       );
+
+      const deleteButton = commentInstance.querySelector(".delete-button");
+
+      if (comment.userId === currentUserId) {
+        deleteButton.classList.remove("hidden");
+        deleteButton.addEventListener("click", async function () {
+          let confirmed = confirm("Are you sure to delete this comment?");
+          if (confirmed) {
+            const response = await chrome.runtime.sendMessage({
+              action: constants.ACTION_DELETE_COMMENT,
+              commentId: comment._id,
+            });
+            if (response.success) {
+              commentInstance.remove();
+            } else {
+              console.log("Delete failed...");
+            }
+          }
+        });
+      }
 
       commentList.appendChild(commentInstance);
     }
@@ -122,7 +162,6 @@ async function updateLoginUI() {
   let jwtTokenExists =
     jwtToken &&
     jwtToken.hasOwnProperty(constants.STORAGE_KEY_AUTH_ACCESS_TOKEN);
-  debugger;
   if (jwtTokenExists) {
     document.getElementById("google-signin").classList.add("hidden");
     document.getElementById("google-signout").classList.remove("hidden");
