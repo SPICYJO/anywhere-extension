@@ -11,7 +11,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "cwd": "${workspaceRoot}/anywhere-server",
+            "cwd": "${workspaceRoot}",
             "runtimeExecutable": "npm",
             "runtimeArgs": [
                 "run", "start:dev"
