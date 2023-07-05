@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-// targetUrl = targetFullUrl - urlFragment
-
 const Comment = new Schema({
   userId: String,
-  targetUrl: String,
+  userNickname: String,
+  targetCanonicalUrl: String,
   targetFullUrl: String,
   content: String,
   schemeAndHostAndPort: String,

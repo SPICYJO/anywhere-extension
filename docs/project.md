@@ -37,3 +37,34 @@ Project Name: Anywhere
 - [ ] Jul 07 Chrome extension
 - [ ] Jul 08 Website
 - [ ] Jul 09 Finish up & Demo video etc
+
+
+## Spec
+
+### How to handle URL?
+
+URL is consisted of the following components.
+
+scheme://domain:port/path?parameters#fragment
+
+Let's define canonical URL format as below. Comments are shown according to the canonical URL. Pages with same canonical URL show the same comments and pages with different canonical URLs shows the different comments.
+
+- scheme should be present
+- domain should be present
+- port part should be omitted when it matches with default port of the scheme, otherwise should be present
+- path should be present.
+- two urls are considered different with/without trailing slash in path
+- parameters should be sorted by key name
+- utm parameters should be removed from parameters (utm_source, utm_medium, utm_campaign, utm_term, utm_content)
+- fragment part should be removed
+
+Examples
+
+- https://www.example.com:443 => https://www.example.com/
+- https://www.example.com:440 => https://www.example.com:440/
+- https://www.example.com/a/b => https://www.example.com/a/b
+- https://www.example.com/a/b/ => https://www.example.com/a/b/
+- https://www.example.com/a/b?d=3&c=4 => https://www.example.com/a/b?c=4&d=3
+- https://www.example.com/a/b?d=3&c=4#anchor => https://www.example.com/a/b?c=4&d=3
+- https://www.example.com/a/b?d=3&utm_source=4#anchor => https://www.example.com/a/b?d=3
+

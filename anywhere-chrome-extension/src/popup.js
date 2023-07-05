@@ -22,9 +22,39 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   }
 });
 
+document.getElementById("submit-button").addEventListener("click", () => {
+  console.log("comment register called!");
+  const content = document.getElementById("content-input").value;
+  chrome.runtime.sendMessage({
+    action: "registerComment",
+    content: content,
+  });
+});
+
+fetchComments();
 updateLoginUI();
 updateUrlUI();
 
+/**
+ * Fetch comments
+ */
+async function fetchComments() {
+  chrome.runtime.sendMessage({ action: 'fetchComments' }, function(response) {
+    // Handle the response from the background script
+    if (response.success) {
+      // Data fetched successfully, do something with it
+      console.log(response.data);
+    } else {
+      // Error occurred while fetching data
+      console.error(response.error);
+    }
+  });
+}
+
+
+/**
+ * Update log in status UI
+ */
 async function updateLoginUI() {
   let jwtToken = await chrome.storage.local.get("jwtToken");
   console.log(jwtToken);
@@ -39,6 +69,9 @@ async function updateLoginUI() {
   }
 }
 
+/**
+ * Update url UI
+ */
 async function updateUrlUI() {
   const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
   const currentTab = tabs[0];

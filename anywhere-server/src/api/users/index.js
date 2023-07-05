@@ -21,6 +21,7 @@ const opts = {
 passport.use(
   'jwt',
   new JwtStrategy(opts, function (jwt_payload, done) {
+    console.log(jwt_payload);
     done(null, jwt_payload);
   }),
 );
