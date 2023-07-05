@@ -1,4 +1,8 @@
 import * as constants from "../utils/constants.js";
+import {
+  getCanonicalUrl,
+  getSchemeAndHostAndPort,
+} from "../utils/url-utils.js";
 
 // Handle Google sign in
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -56,6 +60,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       }
 
       try {
+        const tabs = await chrome.tabs.query({
+          active: true,
+          currentWindow: true,
+        });
+        const currentTab = tabs[0];
+
         const response = await fetch(
           `${constants.SERVER_ADDRESS}/api/comments`,
           {
@@ -67,7 +77,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
               }`,
             },
             body: JSON.stringify({
+              targetCanonicalUrl: getCanonicalUrl(currentTab.url),
+              targetFullUrl: currentTab.url,
               content: request.content,
+              schemeAndHostAndPort: getSchemeAndHostAndPort(currentTab.url),
             }),
           }
         );
