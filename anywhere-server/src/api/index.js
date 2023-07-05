@@ -5,7 +5,6 @@ const passport = require('koa-passport');
 
 const api = new Router();
 
-// api.get('/', apiCtrl.list);
 api.get('/comments', apiCtrl.listComments);
 api.post(
   '/comments',
@@ -13,6 +12,13 @@ api.post(
     session: false,
   }),
   apiCtrl.createComment,
+);
+api.patch(
+  '/comments/:commentId',
+  passport.authenticate('jwt', {
+    session: false,
+  }),
+  apiCtrl.updateComment,
 );
 api.delete(
   '/comments/:commentId',

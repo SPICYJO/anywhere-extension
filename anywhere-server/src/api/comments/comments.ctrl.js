@@ -1,6 +1,23 @@
 const Comment = require('models/comment');
 
 /**
+ * List comments
+ * @param {} ctx 
+ */
+exports.listComments = async (ctx) => {
+  // const { targetUrl } = ctx.request.body;
+  const { page, size, targetCanonicalUrl } = ctx.query;
+
+  const comments = await Comment.findByTargetCanonicalUrl(
+    targetCanonicalUrl,
+    page,
+    size,
+  );
+
+  ctx.body = comments;
+};
+
+/**
  * Create comment
  * @param {*} ctx 
  * @returns 
@@ -63,9 +80,42 @@ exports.updateComment = async (ctx) => {
 };
 
 /**
- * Delete comment
+ * Update comment
  * @param {*} ctx 
  * @returns 
+ */
+exports.updateComment = async (ctx) => {
+  const { commentId } = ctx.params;
+  const { id: userId, nickname: userNickname } = ctx.state.user.user;
+  const { content } = ctx.request.body;
+
+  const comment = await Comment.findById(commentId);
+
+  if (comment.userId !== userId) {
+    return ctx.throw(400);
+  }
+
+  if (content) {
+    comment.content = content;
+  }
+  if (userNickname) {
+    comment.userNickname = userNickname;
+  }
+  comment.modifiedAt = Date.now();
+
+  try {
+    await comment.save();
+  } catch (e) {
+    return ctx.throw(500);
+  }
+
+  ctx.body = comment;
+};
+
+/**
+ * Delete comment
+ * @param {*} ctx
+ * @returns
  */
 exports.deleteComment = async (ctx) => {
   const { commentId } = ctx.params;
@@ -84,21 +134,4 @@ exports.deleteComment = async (ctx) => {
   }
 
   ctx.body = comment;
-};
-
-/**
- * List comments
- * @param {} ctx 
- */
-exports.listComments = async (ctx) => {
-  // const { targetUrl } = ctx.request.body;
-  const { page, size, targetCanonicalUrl } = ctx.query;
-
-  const comments = await Comment.findByTargetCanonicalUrl(
-    targetCanonicalUrl,
-    page,
-    size,
-  );
-
-  ctx.body = comments;
 };
