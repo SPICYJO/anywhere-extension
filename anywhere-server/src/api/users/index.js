@@ -1,8 +1,8 @@
 const passport = require('koa-passport');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const Router = require('koa-router');
-// const userCtrl = require('./user.ctrl');
 const User = require('models/user');
+const RefreshToken = require('models/refresh-token');
 const UserModel = require('models/user-model');
 
 // Load .env file
@@ -16,7 +16,7 @@ const ExtractJwt = require('passport-jwt').ExtractJwt;
 const jwt = require('jsonwebtoken');
 const opts = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET,
+  secretOrKey: process.env.ACCESS_TOKEN_JWT_SECRET,
 };
 passport.use(
   'jwt',
@@ -60,6 +60,20 @@ users.get('/login', (ctx) => {
   ctx.body = '<a href="/api/users/auth/google">Login with Google</a>';
 });
 
+users.post(
+  '/logout',
+  passport.authenticate('jwt', {
+    session: false,
+  }),
+  async (ctx) => {
+    const { id: userId } = ctx.state.user.user;
+
+    await RefreshToken.deleteAllByUserId(userId);
+
+    ctx.body = {};
+  },
+);
+
 users.get(
   '/auth/google',
   passport.authenticate('google', { scope: ['email'] }),
@@ -70,16 +84,65 @@ users.get(
   passport.authenticate('google', {
     session: false,
   }),
-  (ctx) => {
-    // Generate JWT token
-    const token = jwt.sign({ user: ctx.state.user }, process.env.JWT_SECRET);
-
-    // Redirect to the profile page with the token as a query parameter
-    ctx.redirect(
-      `https://${process.env.CHROME_EXTENSION_ID}.chromiumapp.org/api/users/auth/google/callback?token=${token}`,
+  async (ctx) => {
+    // Generate access token
+    const accessToken = jwt.sign(
+      { user: ctx.state.user },
+      process.env.ACCESS_TOKEN_JWT_SECRET,
+      {
+        expiresIn: process.env.ACCESS_TOKEN_EXPIRE_TIME,
+      },
     );
-    // ctx.redirect(`/profile?token=${token}`);
+
+    // Generate refresh token
+    const refreshToken = jwt.sign({}, process.env.REFRESH_TOKEN_JWT_SECRET, {
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRE_TIME,
+    });
+
+    // Save refresh token in database
+    const decodedToken = jwt.decode(refreshToken);
+    const expiryTime = decodedToken.exp;
+    console.log(expiryTime);
+    var expireDate = new Date(expiryTime * 1000);
+    const refreshTokenEntity = RefreshToken({
+      userId: ctx.state.user.id,
+      tokenValue: refreshToken,
+      expiresAt: expireDate,
+    });
+    await refreshTokenEntity.save();
+
+    // Redirect to the extension with the token as a query parameter
+    ctx.redirect(
+      `https://${process.env.CHROME_EXTENSION_ID}.chromiumapp.org/api/users/auth/google/callback?token=${accessToken}&refreshToken=${refreshToken}`,
+    );
   },
 );
+
+users.post('/auth/refresh', async (ctx) => {
+  // Validate refresh token
+  const { refreshToken } = ctx.request.body;
+  let refreshTokenEntity = await RefreshToken.findByTokenValue(refreshToken);
+  if (!refreshTokenEntity) {
+    return ctx.throw(500);
+  }
+  let user = await User.findById(refreshTokenEntity.userId);
+  if (!user) {
+    return ctx.throw(500);
+  }
+
+  // Generate access token
+  let userModel = new UserModel(user.id, user.email, user.nickname);
+  const accessToken = jwt.sign(
+    { user: userModel },
+    process.env.ACCESS_TOKEN_JWT_SECRET,
+    {
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRE_TIME,
+    },
+  );
+
+  ctx.body = {
+    accessToken: accessToken,
+  };
+});
 
 module.exports = users;
