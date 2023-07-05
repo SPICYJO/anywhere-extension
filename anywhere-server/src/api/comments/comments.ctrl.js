@@ -63,6 +63,30 @@ exports.updateComment = async (ctx) => {
 };
 
 /**
+ * Delete comment
+ * @param {*} ctx 
+ * @returns 
+ */
+exports.deleteComment = async (ctx) => {
+  const { commentId } = ctx.params;
+  const { id: userId } = ctx.state.user.user;
+
+  const comment = await Comment.findById(commentId);
+
+  if (comment.userId !== userId) {
+    return ctx.throw(400);
+  }
+
+  try {
+    await comment.deleteOne();
+  } catch (e) {
+    return ctx.throw(500);
+  }
+
+  ctx.body = comment;
+};
+
+/**
  * List comments
  * @param {} ctx 
  */

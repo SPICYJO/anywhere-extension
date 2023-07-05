@@ -14,6 +14,13 @@ api.post(
   }),
   apiCtrl.createComment,
 );
+api.delete(
+  '/comments/:commentId',
+  passport.authenticate('jwt', {
+    session: false,
+  }),
+  apiCtrl.deleteComment,
+);
 
 api.use('/users', users.routes());
 
