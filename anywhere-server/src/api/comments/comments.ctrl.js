@@ -1,5 +1,10 @@
 const Comment = require('models/comment');
 
+/**
+ * Create comment
+ * @param {*} ctx 
+ * @returns 
+ */
 exports.createComment = async (ctx) => {
   const { targetCanonicalUrl, targetFullUrl, content, schemeAndHostAndPort } =
     ctx.request.body;
@@ -24,6 +29,11 @@ exports.createComment = async (ctx) => {
   ctx.body = comment;
 };
 
+/**
+ * Update comment
+ * @param {} ctx 
+ * @returns 
+ */
 exports.updateComment = async (ctx) => {
   const {
     userId,
@@ -52,10 +62,19 @@ exports.updateComment = async (ctx) => {
   ctx.body = comment;
 };
 
+/**
+ * List comments
+ * @param {} ctx 
+ */
 exports.listComments = async (ctx) => {
   // const { targetUrl } = ctx.request.body;
+  const { page, size, targetCanonicalUrl } = ctx.query;
 
-  const comments = await Comment.find({}).exec();
+  const comments = await Comment.findByTargetCanonicalUrl(
+    targetCanonicalUrl,
+    page,
+    size,
+  );
 
   ctx.body = comments;
 };

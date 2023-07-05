@@ -18,4 +18,18 @@ const Comment = new Schema({
   },
 });
 
+Comment.statics.findByTargetCanonicalUrl = function (
+  targetCanonicalUrl,
+  page = 0,
+  size = 10,
+) {
+  const skipCount = page * size;
+
+  return this.find({ targetCanonicalUrl })
+    .sort({ createdAt: -1 })
+    .skip(skipCount)
+    .limit(size)
+    .exec();
+};
+
 module.exports = mongoose.model('Comment', Comment);
