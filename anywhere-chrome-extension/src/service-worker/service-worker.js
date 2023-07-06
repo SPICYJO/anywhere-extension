@@ -1,3 +1,4 @@
+import { getAccessToken } from "../utils/auth-utils.js";
 import * as constants from "../utils/constants.js";
 import {
   getCanonicalUrl,
@@ -7,6 +8,7 @@ import {
 // Handle Google sign in
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "startGoogleSignIn") {
+    console.log("startGoogleSignIn called");
     chrome.identity.launchWebAuthFlow(
       {
         url: `${constants.SERVER_ADDRESS}/api/users/auth/google`,
@@ -24,28 +26,93 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+// Handle sign out
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "startSignOut") {
+    (async function () {
+      let accessToken = await getAccessToken();
+
+      try {
+        const response = await fetch(
+          `${constants.SERVER_ADDRESS}/api/users/logout`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Request failed with status: " + response.status);
+        }
+
+        const data = await response.json();
+        sendResponse({ success: true, data: data });
+      } catch (error) {
+        sendResponse({ success: false, error: error.message });
+      }
+    })();
+  }
+});
+
+// Handle refresh token
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "refreshToken") {
+    console.log("refreshToken called");
+    (async function () {
+      let refreshToken = (
+        await chrome.storage.local.get(constants.STORAGE_KEY_AUTH_REFRESH_TOKEN)
+      )[constants.STORAGE_KEY_AUTH_REFRESH_TOKEN];
+
+      try {
+        const response = await fetch(
+          `${constants.SERVER_ADDRESS}/api/users/auth/refresh`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              refreshToken: refreshToken,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Request failed with status: " + response.status);
+        }
+
+        const data = await response.json();
+        sendResponse({ success: true, data: data });
+      } catch (error) {
+        sendResponse({ success: false, error: error.message });
+      }
+    })();
+  }
+});
+
 // Comment action handler
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   switch (request.action) {
     // Handle comment register
     case constants.ACTION_REGISTER_COMMENT:
       (async function () {
-        let jwtToken = await chrome.storage.local.get(
-          constants.STORAGE_KEY_AUTH_ACCESS_TOKEN
-        );
-        let jwtTokenExists =
-          jwtToken &&
-          jwtToken.hasOwnProperty(constants.STORAGE_KEY_AUTH_ACCESS_TOKEN);
-        if (!jwtTokenExists) {
+        let jwtToken = await getAccessToken();
+        if (!jwtToken) {
           console.log("Please sign in...");
           return;
         }
+        console.log(jwtToken);
 
+        // debugger;
         try {
           const tabs = await chrome.tabs.query({
             active: true,
             currentWindow: true,
           });
+          console.log(tabs);
           const currentTab = tabs[0];
 
           const response = await fetch(
@@ -54,9 +121,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${
-                  jwtToken[constants.STORAGE_KEY_AUTH_ACCESS_TOKEN]
-                }`,
+                Authorization: `Bearer ${jwtToken}`,
               },
               body: JSON.stringify({
                 targetCanonicalUrl: getCanonicalUrl(currentTab.url),
@@ -81,13 +146,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     // Handle comment edit
     case constants.ACTION_EDIT_COMMENT:
       (async function () {
-        let jwtToken = await chrome.storage.local.get(
-          constants.STORAGE_KEY_AUTH_ACCESS_TOKEN
-        );
-        let jwtTokenExists =
-          jwtToken &&
-          jwtToken.hasOwnProperty(constants.STORAGE_KEY_AUTH_ACCESS_TOKEN);
-        if (!jwtTokenExists) {
+        let jwtToken = await getAccessToken();
+        if (!jwtToken) {
           console.log("Please sign in...");
           return;
         }
@@ -99,9 +159,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
               method: "PATCH",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${
-                  jwtToken[constants.STORAGE_KEY_AUTH_ACCESS_TOKEN]
-                }`,
+                Authorization: `Bearer ${jwtToken}`,
               },
               body: JSON.stringify({
                 content: request.commentContent,
@@ -123,13 +181,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     // Handle comment delete
     case constants.ACTION_DELETE_COMMENT:
       (async function () {
-        let jwtToken = await chrome.storage.local.get(
-          constants.STORAGE_KEY_AUTH_ACCESS_TOKEN
-        );
-        let jwtTokenExists =
-          jwtToken &&
-          jwtToken.hasOwnProperty(constants.STORAGE_KEY_AUTH_ACCESS_TOKEN);
-        if (!jwtTokenExists) {
+        let jwtToken = await getAccessToken();
+        if (!jwtToken) {
           console.log("Please sign in...");
           return;
         }
@@ -141,10 +194,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
               method: "DELETE",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${
-                  jwtToken[constants.STORAGE_KEY_AUTH_ACCESS_TOKEN]
-                }`,
-              }
+                Authorization: `Bearer ${jwtToken}`,
+              },
             }
           );
 

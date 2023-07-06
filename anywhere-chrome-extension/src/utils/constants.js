@@ -3,6 +3,7 @@ export const SERVER_ADDRESS = "http://localhost:4000";
 
 // Storage keys
 export const STORAGE_KEY_AUTH_ACCESS_TOKEN = "jwtToken";
+export const STORAGE_KEY_AUTH_REFRESH_TOKEN = "refreshToken";
 
 // Message action types
 export const ACTION_FETCH_COMMENTS = "fetchComments";

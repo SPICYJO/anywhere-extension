@@ -17,6 +17,7 @@ document
   .getElementById("google-signout")
   .addEventListener("click", async () => {
     console.log("sign out called");
+    await chrome.runtime.sendMessage({ action: "startSignOut" });
     await chrome.storage.local.remove(constants.STORAGE_KEY_AUTH_ACCESS_TOKEN);
     await updateLoginUI();
   });
@@ -102,7 +103,11 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     console.log(message.authResult);
 
     let jwtToken = getQueryParam(message.authResult, "token");
-    await chrome.storage.local.set({ jwtToken: jwtToken });
+    let refreshToken = getQueryParam(message.authResult, "refreshToken");
+    await chrome.storage.local.set({
+      jwtToken: jwtToken,
+      refreshToken: refreshToken,
+    });
     await updateLoginUI();
   }
 });
