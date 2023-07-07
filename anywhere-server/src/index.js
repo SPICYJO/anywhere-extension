@@ -16,6 +16,12 @@ app.use(passport.initialize());
 
 // Api settings
 router.use('/api', api.routes());
+// Health check
+router.get('/', (ctx) => {
+  ctx.body = {
+    state: 'ok',
+  };
+});
 app.use(bodyParser());
 app.use(router.routes()).use(router.allowedMethods());
 

@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: anywhere-server
-        image: asia-northeast3-docker.pkg.dev/seungwoojo-com/docker-repo/anywhere-server:1.0.1
+        image: asia-northeast3-docker.pkg.dev/seungwoojo-com/docker-repo/anywhere-server:1.0.2
         resources:
           limits:
             cpu: "0.5"
