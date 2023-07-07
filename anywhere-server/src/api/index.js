@@ -5,6 +5,11 @@ const passport = require('koa-passport');
 
 const api = new Router();
 
+api.get('/', (ctx) => {
+  ctx.body = {
+    state: 'ok',
+  };
+});
 api.get('/comments', apiCtrl.listComments);
 api.post(
   '/comments',

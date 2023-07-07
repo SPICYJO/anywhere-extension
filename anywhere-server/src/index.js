@@ -5,7 +5,7 @@ const api = require('./api');
 const passport = require('koa-passport');
 
 // Load .env file
-require('dotenv').config();
+require('dotenv').config({ path: 'env/.env' });
 
 // Koa settings
 const app = new Koa();

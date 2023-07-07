@@ -1,0 +1,45 @@
+apiVersion: "networking.k8s.io/v1"
+kind: Ingress
+metadata:
+  name: anywhere-server-ingress
+  annotations:
+    kubernetes.io/ingress.class: gce
+    networking.gke.io/managed-certificates: dev-anywhere.seungwoojo.com
+    kubernetes.io/ingress.global-static-ip-name: static-ip-dev
+    networking.gke.io/v1beta1.FrontendConfig: "http-to-https"
+spec:
+  defaultBackend:
+    service:
+      name: anywhere-server-svc
+      port:
+        number: 80
+  rules:
+  - http:
+      paths:
+      - path: ""
+        backend:
+          service:
+            name: anywhere-server-svc
+            port:
+              number: 80
+        pathType: ImplementationSpecific
+    host: dev-anywhere.seungwoojo.com
+status:
+  loadBalancer: {}
+---
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: http-to-https
+spec:
+  redirectToHttps:
+    enabled: true
+    responseCodeName: MOVED_PERMANENTLY_DEFAULT
+---
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: dev-anywhere.seungwoojo.com
+spec:
+  domains:
+    - dev-anywhere.seungwoojo.com

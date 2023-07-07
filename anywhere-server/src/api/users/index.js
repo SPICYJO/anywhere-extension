@@ -6,7 +6,7 @@ const RefreshToken = require('models/refresh-token');
 const UserModel = require('models/user-model');
 
 // Load .env file
-require('dotenv').config();
+require('dotenv').config({ path: 'env/.env' });
 
 const users = new Router();
 
