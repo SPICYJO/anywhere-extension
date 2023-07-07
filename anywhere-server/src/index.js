@@ -11,18 +11,6 @@ require('dotenv').config({ path: 'env/.env' });
 const app = new Koa();
 const router = new Router();
 
-// Middleware to allow specific hostnames
-app.use(async (ctx, next) => {
-  const allowedHostnames = ['localhost', 'dev-anywhere.seungwoojo.com'];
-
-  if (allowedHostnames.includes(ctx.hostname)) {
-    await next();
-  } else {
-    ctx.status = 403;
-    ctx.body = 'Forbidden';
-  }
-});
-
 // Initialize Passport (Auth)
 app.use(passport.initialize());
 

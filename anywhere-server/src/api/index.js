@@ -5,6 +5,18 @@ const passport = require('koa-passport');
 
 const api = new Router();
 
+// Middleware to allow specific hostnames
+api.use(async (ctx, next) => {
+  const allowedHostnames = ['localhost', 'dev-anywhere.seungwoojo.com'];
+
+  if (allowedHostnames.includes(ctx.hostname)) {
+    await next();
+  } else {
+    ctx.status = 403;
+    ctx.body = 'Forbidden';
+  }
+});
+
 api.get('/comments', apiCtrl.listComments);
 api.post(
   '/comments',
