@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: anywhere-server-deployment
 spec:
+  replicas: 2
   selector:
     matchLabels:
       app: anywhere-server
@@ -13,7 +14,7 @@ spec:
     spec:
       containers:
       - name: anywhere-server
-        image: asia-northeast3-docker.pkg.dev/seungwoojo-com/docker-repo/anywhere-server:1.0.3
+        image: asia-northeast3-docker.pkg.dev/seungwoojo-com/docker-repo/anywhere-server:1.0.4
         resources:
           limits:
             cpu: "0.5"
@@ -32,6 +33,27 @@ spec:
       - name: secret-volume
         secret:
           secretName: env-secret
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: anywhere-server-hpa
+  labels:
+    app: anywhere-server
+spec:
+  scaleTargetRef:
+    kind: Deployment
+    name: anywhere-server-deployment
+    apiVersion: apps/v1
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80
 ---
 apiVersion: v1
 kind: Service
