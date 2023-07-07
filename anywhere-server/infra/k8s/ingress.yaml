@@ -43,3 +43,18 @@ metadata:
 spec:
   domains:
     - dev-anywhere.seungwoojo.com
+---
+# for dev environment, allow only traffic from my home
+# remove this when deploying to production
+# 
+# Create Cloud Armor policy with below commands
+# gcloud compute security-policies create policy-allow-only-home --description "whitelisting"
+# gcloud compute security-policies rules update 2147483647 --action=deny-403 --security-policy policy-allow-only-home
+# gcloud compute security-policies rules create 2 --action=allow --security-policy policy-allow-only-home --description "allow home" --src-ip-ranges "$homeip/32"
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: allow-only-home
+spec:
+  securityPolicy:
+    name: policy-allow-only-home
