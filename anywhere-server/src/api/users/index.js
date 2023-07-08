@@ -121,13 +121,16 @@ users.get(
 users.post('/auth/refresh', async (ctx) => {
   // Validate refresh token
   const { refreshToken } = ctx.request.body;
+  if (!isValidToken(refreshToken, process.env.REFRESH_TOKEN_JWT_SECRET)) {
+    return ctx.throw(400);
+  }
   let refreshTokenEntity = await RefreshToken.findByTokenValue(refreshToken);
   if (!refreshTokenEntity) {
-    return ctx.throw(500);
+    return ctx.throw(400);
   }
   let user = await User.findById(refreshTokenEntity.userId);
   if (!user) {
-    return ctx.throw(500);
+    return ctx.throw(400);
   }
 
   // Generate access token
@@ -144,5 +147,16 @@ users.post('/auth/refresh', async (ctx) => {
     accessToken: accessToken,
   };
 });
+
+function isValidToken(token, secret) {
+  try {
+    jwt.verify(token, secret);
+    return true;
+  } catch (error) {
+    // Token verification failed
+    console.error('Token verification failed:', error.message);
+    return false;
+  }
+}
 
 module.exports = users;
