@@ -7,6 +7,11 @@ const passport = require('koa-passport');
 // Load .env file
 require('dotenv').config({ path: 'env/.env' });
 
+// Logging settings
+if (process.env.ENV === 'PROD') {
+  console.log = function() {};
+}
+
 // Koa settings
 const app = new Koa();
 const router = new Router();
