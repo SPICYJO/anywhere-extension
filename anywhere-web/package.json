@@ -1,0 +1,18 @@
+{
+  "name": "anywhere-web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "parcel build index.html 404.html",
+    "start": "parcel index.html",
+    "deploy-dev": "(source ./env-dev.sh && npm run build && gcloud storage rsync ./dist/ gs://${BUCKET_NAME}/)",
+    "deploy-prod": "(source ./env-prod.sh && npm run build && gcloud storage rsync ./dist/ gs://${BUCKET_NAME}/)",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel-bundler": "^1.12.5"
+  }
+}
