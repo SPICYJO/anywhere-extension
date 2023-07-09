@@ -23,19 +23,18 @@ Project Name: Anywhere
 - Apigee, KMS (maybe?)
 
 ## Timeline
-
 - Project deadline
   - Jul 11 (TUE), 2023 @ 5:00pm EDT
   - Jul 10 (MON), 2023 @ 6:00am KST
-- Project started on Jul 3 (MON), 2023 KST
-- Timezone is in KST otherwise specified
+- Project started on Jul 3 (MON), 2023 in KST
+- Timezone is in KST unless otherwise specified
 
-- [ ] Jul 03 Application server
-- [ ] Jul 04 Application server
-- [ ] Jul 05 Application server
-- [ ] Jul 06 Chrome extension
-- [ ] Jul 07 Chrome extension
-- [ ] Jul 08 Website
+- [x] Jul 03 Application server - local setup, dev mongodb setup
+- [x] Jul 04 Application server - authentication, learn chrome extension development
+- [x] Jul 05 Chrome extension - develop chrome extension, develop server apis
+- [x] Jul 06 Application server - auth (refresh token)
+- [x] Jul 07 Application server - learn gcp and gke, deploy dev app to gke cluster
+- [x] Jul 08 Application server - refactor code, learn gcp and gke
 - [ ] Jul 09 Finish up & Demo video etc
 
 
