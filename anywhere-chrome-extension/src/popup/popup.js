@@ -152,7 +152,7 @@ document
     await updateLoginUI();
   });
 
-document.getElementById("submit-button").addEventListener("click", async () => {
+let registerCommentFunction = async () => {
   console.log("comment register called!");
   const content = document.getElementById("content-input").value;
   const response = await chrome.runtime.sendMessage({
@@ -221,10 +221,26 @@ document.getElementById("submit-button").addEventListener("click", async () => {
     });
 
     commentList.insertBefore(commentInstance, commentList.firstChild);
+    document.getElementById("content-input").value = "";
   } else {
     console.log("Register failed...");
   }
-});
+};
+
+// submit keyboard shortcut
+document
+  .getElementById("content-input")
+  .addEventListener("keydown", function (event) {
+    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+      event.preventDefault();
+      registerCommentFunction();
+    }
+  });
+
+// submit button click
+document
+  .getElementById("submit-button")
+  .addEventListener("click", registerCommentFunction);
 
 // message handlers
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
