@@ -78,12 +78,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: #ff6347;
-  color: white;
+  background-color: #eee;
   border: none;
-  padding: 10px;
-  border-radius: 4px;
+  font-size: 12px;
+  color: #888;
   cursor: pointer;
+  height: 16px;
+  padding: 1px 6px;
 }
 
 .delete-button i {
@@ -94,12 +95,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: #4169E1;
-  color: white;
+  background-color: #eee;
   border: none;
-  padding: 10px;
-  border-radius: 4px;
+  font-size: 12px;
+  color: #888;
   cursor: pointer;
+  height: 16px;
+  padding: 1px 6px;
 }
 
 .edit-button i {
@@ -146,4 +148,15 @@
   overflow: hidden;
   white-space: nowrap;
   max-width: 400px;
+}
+
+.button-container {
+  display: inline;
+}
+
+.comment-dates {
+  display: inline-block;
+  background-color: #eee;
+  height: 16px;
+  padding: 1px 6px;
 }
