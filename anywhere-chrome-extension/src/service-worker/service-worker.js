@@ -15,9 +15,6 @@ chrome.runtime.onInstalled.addListener(() => {
 // Badge - Listen to active tab change event
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
   const activeTab = await chrome.tabs.get(activeInfo.tabId);
-  console.log(`${activeTab.id}`);
-  console.log(`Tab url changed! ${activeTab.url}`);
-
   if (!activeTab.url) {
     return;
   }
@@ -28,7 +25,6 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
 // Badge - Listen to tab url change event
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (tabId && tab.url && tab.status === "complete") {
-    console.log(`Tab url changed! ${tab.url}`);
     updateBadgeCount(tab.url, tabId);
   }
 });
@@ -63,7 +59,6 @@ async function updateBadgeCount(url, tabId) {
 
 async function increaseBadgeCount(delta, tabId) {
   const text = await chrome.action.getBadgeText({ tabId });
-  console.log(`current badge text: ${text}`);
 
   if (text === "999+") {
     return;
@@ -84,14 +79,12 @@ async function increaseBadgeCount(delta, tabId) {
 // Handle Google sign in
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "startGoogleSignIn") {
-    console.log("startGoogleSignIn called");
     chrome.identity.launchWebAuthFlow(
       {
         url: `${constants.SERVER_ADDRESS}/api/users/auth/google`,
         interactive: true,
       },
       (redirectUrl) => {
-        console.log(redirectUrl);
         // Handle the redirect URL or JWT response
         chrome.runtime.sendMessage({
           action: "authResult",
@@ -146,10 +139,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       (async function () {
         let jwtToken = await getAccessToken();
         if (!jwtToken) {
-          console.log("Please sign in...");
           return;
         }
-        console.log(jwtToken);
 
         // debugger;
         try {
@@ -157,7 +148,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             active: true,
             lastFocusedWindow: true,
           });
-          console.log(tabs);
           const currentTab = tabs[0];
 
           const response = await fetch(
@@ -194,7 +184,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       (async function () {
         let jwtToken = await getAccessToken();
         if (!jwtToken) {
-          console.log("Please sign in...");
           return;
         }
 
@@ -229,7 +218,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       (async function () {
         let jwtToken = await getAccessToken();
         if (!jwtToken) {
-          console.log("Please sign in...");
           return;
         }
 
@@ -237,7 +225,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
           active: true,
           lastFocusedWindow: true,
         });
-        console.log(tabs);
         const currentTab = tabs[0];
 
         try {
@@ -272,7 +259,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             active: true,
             lastFocusedWindow: true,
           });
-          console.log(tabs);
           const currentTab = tabs[0];
 
           const page = request.page ?? 0;
@@ -301,9 +287,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     case constants.ACTION_CHANGE_NICKNAME:
       (async function () {
         let jwtToken = await getAccessToken();
-        console.log(jwtToken);
         if (!jwtToken) {
-          console.log("Please sign in...");
           return;
         }
 
@@ -357,7 +341,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
           }
 
           const data = await response.json();
-          console.log(`WOW ${data}`);
           sendResponse({ success: true, data: data });
         } catch (error) {
           throw error;

@@ -16,7 +16,6 @@ export async function getAccessToken(callFromBackground = true) {
 
   let decodedAuthInfo = jwtToken ? jwt_decode(jwtToken) : null;
   let expiresAt = decodedAuthInfo ? decodedAuthInfo.exp : null;
-  console.log(decodedAuthInfo);
   var currentTime = Math.floor(Date.now() / 1000);
 
   // Stored access token is not valid
@@ -79,7 +78,6 @@ export async function refreshAccessToken(callFromBackground = true) {
     ).data;
   }
 
-  console.log(`refresh success! ${callFromBackground}`);
   await chrome.storage.local.set({
     jwtToken: data.accessToken,
   });
