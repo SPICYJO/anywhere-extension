@@ -3,6 +3,7 @@
  * @param {*} url
  */
 export function getCanonicalUrl(url) {
+  console.log(`getCanonicalUrl(${url}) called!`);
   // Parse the URL components
   const parsedUrl = new URL(url);
 
