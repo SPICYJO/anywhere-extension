@@ -31,9 +31,16 @@ exports.listComments = async (ctx) => {
     page,
     size,
   );
+  const count = await Comment.countByTargetCanonicalUrl(targetCanonicalUrl);
 
   // Response
-  ctx.body = comments;
+  ctx.body = {
+    page: page,
+    size: size,
+    totalCount: count,
+    totalPageCount: count === 0 ? 1 : Math.ceil(count / size),
+    contents: comments,
+  };
 };
 
 /**

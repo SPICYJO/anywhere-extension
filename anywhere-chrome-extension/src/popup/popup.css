@@ -99,3 +99,34 @@
 .hidden {
   display: none;
 }
+
+.comment-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.comment-pagination-link {
+  display: inline-block;
+  padding: 8px 16px;
+  text-decoration: none;
+  color: #000;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin: 0 4px;
+}
+
+.comment-pagination-ellipsis {
+  display: inline-block;
+  padding: 8px 0;
+  color: #000;
+  margin: 0 4px;
+}
+
+.comment-pagination-link:hover {
+  background-color: #ddd;
+}
+
+.comment-pagination-link.active {
+  background-color: #ccc;
+}

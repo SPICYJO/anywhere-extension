@@ -3,6 +3,9 @@ import { getTimeSinceString } from "../utils/date-utils.js";
 import { getCanonicalUrl } from "../utils/url-utils.js";
 import { jwt_decode } from "../vendors/jwt-decode.js";
 
+var currentPage = 0;
+var totalPageCount = 1;
+
 fetchComments();
 updateLoginUI();
 updateUrlUI();
@@ -12,6 +15,111 @@ document.getElementById("google-signin").addEventListener("click", () => {
   console.log("sign in called");
   chrome.runtime.sendMessage({ action: "startGoogleSignIn" });
 });
+
+// Handle pagination click
+function handlePaginationClick(event) {
+  event.preventDefault();
+
+  // Get the clicked page number or navigation action
+  const page = event.target.getAttribute("data-page");
+
+  let nextPage;
+  if (page === "prev") {
+    console.log("Go to previous page");
+    nextPage = currentPage - 1;
+  } else if (page === "next") {
+    console.log("Go to next page");
+    nextPage = currentPage + 1;
+  } else {
+    console.log(`Go to page ${page}`);
+    nextPage = Number(page);
+  }
+  console.log(`Go to page ${nextPage}, ${totalPageCount}`);
+  if (nextPage < 0 || nextPage >= totalPageCount) {
+    return;
+  }
+  if (currentPage === nextPage) {
+    return;
+  }
+
+  currentPage = nextPage;
+  fetchComments();
+}
+function renderPagination(currentPage, totalPageCount) {
+  const paginationContainer = document.querySelector(".comment-pagination");
+  paginationContainer.innerHTML = "";
+
+  // Render previous page link
+  const prevPageLink = createPaginationLink("<", currentPage - 1);
+  paginationContainer.appendChild(prevPageLink);
+
+  // Render page numbers or ellipsis
+  if (totalPageCount <= 5) {
+    // Render all page numbers
+    for (let page = 0; page < totalPageCount; page++) {
+      const pageLink = createPaginationLink(page + 1, page);
+      paginationContainer.appendChild(pageLink);
+    }
+  } else {
+    // Render ellipsis and limited page numbers
+    if (currentPage <= 2) {
+      // Render first 5 page numbers
+      for (let page = 0; page < 5; page++) {
+        const pageLink = createPaginationLink(page + 1, page);
+        paginationContainer.appendChild(pageLink);
+      }
+      // Render ellipsis
+      const ellipsis = createEllipsis();
+      paginationContainer.appendChild(ellipsis);
+    } else if (currentPage > totalPageCount - 3) {
+      // Render last 5 page numbers
+      const ellipsis = createEllipsis();
+      paginationContainer.appendChild(ellipsis);
+      for (let page = totalPageCount - 5; page < totalPageCount; page++) {
+        const pageLink = createPaginationLink(page + 1, page);
+        paginationContainer.appendChild(pageLink);
+      }
+    } else {
+      // Render current page and surrounding page numbers
+      const ellipsisStart = createEllipsis();
+      paginationContainer.appendChild(ellipsisStart);
+
+      for (let page = currentPage - 2; page <= currentPage + 2; page++) {
+        const pageLink = createPaginationLink(page + 1, page);
+        paginationContainer.appendChild(pageLink);
+      }
+
+      const ellipsisEnd = createEllipsis();
+      paginationContainer.appendChild(ellipsisEnd);
+    }
+  }
+
+  // Render next page link
+  const nextPageLink = createPaginationLink(">", currentPage + 1);
+  paginationContainer.appendChild(nextPageLink);
+
+  document.querySelectorAll(".comment-pagination-link").forEach((link) => {
+    link.addEventListener("click", handlePaginationClick);
+  });
+}
+function createPaginationLink(text, page) {
+  const link = document.createElement("a");
+  link.href = "#";
+  link.classList.add("comment-pagination-link");
+  if (page === currentPage) {
+    link.classList.add("active");
+  }
+  link.textContent = text;
+  link.setAttribute("data-page", page);
+  return link;
+}
+
+function createEllipsis() {
+  const ellipsis = document.createElement("span");
+  ellipsis.classList.add("comment-pagination-ellipsis");
+  ellipsis.textContent = "...";
+  return ellipsis;
+}
 
 document
   .getElementById("google-signout")
@@ -120,10 +228,12 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 async function fetchComments() {
   const response = await chrome.runtime.sendMessage({
     action: constants.ACTION_FETCH_COMMENTS,
+    page: currentPage,
+    size: 5,
   });
 
   if (response.success) {
-    console.log(response.data);
+    console.log(response.data.contents);
     const commentList = document.querySelector(".comment-list");
 
     let jwtToken = (
@@ -141,7 +251,7 @@ async function fetchComments() {
 
     const nowString = new Date().toISOString();
 
-    for (let comment of response.data) {
+    for (let comment of response.data.contents) {
       const template = document.querySelector("#comment-template");
       const commentInstance = document.importNode(
         template.content.firstElementChild,
@@ -204,8 +314,11 @@ async function fetchComments() {
 
       commentList.appendChild(commentInstance);
     }
+
+    totalPageCount = response.data.totalPageCount;
+    renderPagination(currentPage, totalPageCount);
   } else {
-    console.log("Fetch failed...");
+    console.log(`Fetch failed... ${response.error}`);
   }
 }
 

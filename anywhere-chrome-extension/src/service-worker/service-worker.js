@@ -44,7 +44,11 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 async function updateBadgeCount(url) {
   const canonicalUrl = getCanonicalUrl(url);
   const response = await fetch(
-    `${constants.SERVER_ADDRESS}/api/comments/count?targetCanonicalUrl=${canonicalUrl}`,
+    `${
+      constants.SERVER_ADDRESS
+    }/api/comments/count?targetCanonicalUrl=${encodeURIComponent(
+      canonicalUrl
+    )}`,
     {
       method: "GET",
       headers: {
@@ -298,6 +302,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             active: true,
             currentWindow: true,
           });
+          console.log(tabs);
           const currentTab = tabs[0];
 
           const page = request.page ?? 0;
