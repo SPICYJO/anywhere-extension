@@ -33,7 +33,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: '/api/users/auth/google/callback',
+      callbackURL: `${process.env.SERVER_URL}/api/users/auth/google/callback`,
     },
     async (accessToken, refreshToken, profile, done) => {
       const userEmail = profile.emails[0].value;

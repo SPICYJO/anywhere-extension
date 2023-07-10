@@ -1,12 +1,13 @@
 {
   "name": "anywhere-server",
-  "version": "1.0.0",
+  "version": "1.0.7",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "NODE_PATH=src node src",
-    "start:dev": "NODE_PATH=src nodemon --watch src/ src/index.js"
+    "start:dev": "NODE_PATH=src nodemon --watch src/ src/index.js",
+    "build": "docker build -t asia-northeast3-docker.pkg.dev/seungwoojo-com/docker-repo/anywhere-server:$npm_package_version . && docker push asia-northeast3-docker.pkg.dev/seungwoojo-com/docker-repo/anywhere-server:$npm_package_version"
   },
   "author": "",
   "license": "ISC",
