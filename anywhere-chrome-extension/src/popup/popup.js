@@ -23,7 +23,7 @@ document
     let jwtToken = await getAccessToken();
     let decodedAuthInfo = jwt_decode(jwtToken);
     let userNickname = decodedAuthInfo.user.nickname;
-    let nickname = prompt("Please enter the nickname", userNickname);
+    let nickname = prompt("Please enter new nickname.", userNickname);
     if (nickname) {
       const response = await chrome.runtime.sendMessage({
         action: constants.ACTION_CHANGE_NICKNAME,
