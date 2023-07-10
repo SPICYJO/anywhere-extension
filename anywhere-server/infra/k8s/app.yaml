@@ -32,7 +32,7 @@ spec:
       volumes:
       - name: secret-volume
         secret:
-          secretName: env-secret
+          secretName: anywhere-env-secret
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler

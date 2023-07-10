@@ -7,7 +7,11 @@ const api = new Router();
 
 // Middleware to allow specific hostnames
 api.use(async (ctx, next) => {
-  const allowedHostnames = ['localhost', 'dev-anywhere-api.seungwoojo.com'];
+  const allowedHostnames = [
+    'localhost',
+    'dev-anywhere-api.seungwoojo.com',
+    'anywhere-api.seungwoojo.com',
+  ];
 
   if (allowedHostnames.includes(ctx.hostname)) {
     await next();
