@@ -1,4 +1,4 @@
-import { getAccessToken } from "../utils/auth-utils.js";
+import { getAccessToken, refreshAccessToken } from "../utils/auth-utils.js";
 import * as constants from "../utils/constants.js";
 import {
   getCanonicalUrl,
@@ -114,6 +114,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     (async function () {
       let accessToken = await getAccessToken();
 
+      if (!accessToken) {
+        sendResponse({ success: true, data: {} });
+        return;
+      }
+
       try {
         const response = await fetch(
           `${constants.SERVER_ADDRESS}/api/users/logout`,
@@ -123,42 +128,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               "Content-Type": "application/json",
               Authorization: `Bearer ${accessToken}`,
             },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Request failed with status: " + response.status);
-        }
-
-        const data = await response.json();
-        sendResponse({ success: true, data: data });
-      } catch (error) {
-        sendResponse({ success: false, error: error.message });
-      }
-    })();
-  }
-});
-
-// Handle refresh token
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "refreshToken") {
-    console.log("refreshToken called");
-    (async function () {
-      let refreshToken = (
-        await chrome.storage.local.get(constants.STORAGE_KEY_AUTH_REFRESH_TOKEN)
-      )[constants.STORAGE_KEY_AUTH_REFRESH_TOKEN];
-
-      try {
-        const response = await fetch(
-          `${constants.SERVER_ADDRESS}/api/users/auth/refresh`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              refreshToken: refreshToken,
-            }),
           }
         );
 
@@ -327,7 +296,74 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         }
       })();
       break;
+    // Handle change nickname
+    case constants.ACTION_CHANGE_NICKNAME:
+      (async function () {
+        let jwtToken = await getAccessToken();
+        console.log(jwtToken);
+        if (!jwtToken) {
+          console.log("Please sign in...");
+          return;
+        }
 
+        try {
+          const response = await fetch(
+            `${constants.SERVER_ADDRESS}/api/users/nickname`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${jwtToken}`,
+              },
+              body: JSON.stringify({
+                nickname: request.nickname,
+              }),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Request failed with status: " + response.status);
+          }
+
+          const data = await response.json();
+          refreshAccessToken();
+          sendResponse({ success: true, data: data });
+        } catch (error) {
+          sendResponse({ success: false, error: error.message });
+        }
+      })();
+      break;
+    // Handle access token refresh
+    case constants.ACTION_REFRESH_ACCESS_TOKEN:
+      (async function () {
+        try {
+          // debugger;
+          const response = await fetch(
+            `${constants.SERVER_ADDRESS}/api/users/auth/refresh`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                refreshToken: request.refreshToken,
+              }),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Request failed with status: " + response.status);
+          }
+
+          const data = await response.json();
+          console.log(`WOW ${data}`);
+          sendResponse({ success: true, data: data });
+        } catch (error) {
+          throw error;
+          // sendResponse({ success: false, error: error.message });
+        }
+      })();
+      break;
     default:
       break;
   }

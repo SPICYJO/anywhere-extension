@@ -11,3 +11,5 @@ export const ACTION_FETCH_COMMENTS = "fetchComments";
 export const ACTION_REGISTER_COMMENT = "registerComment";
 export const ACTION_EDIT_COMMENT = "editComment";
 export const ACTION_DELETE_COMMENT = "deleteComment";
+export const ACTION_REFRESH_ACCESS_TOKEN = "refreshAccessToken";
+export const ACTION_CHANGE_NICKNAME = "changeNickname";

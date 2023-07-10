@@ -8,7 +8,7 @@ import * as constants from "./constants.js";
  * If refresh token is invalid, return null
  * @returns
  */
-export async function getAccessToken() {
+export async function getAccessToken(callFromBackground = true) {
   // debugger;
   let jwtToken = (
     await chrome.storage.local.get(constants.STORAGE_KEY_AUTH_ACCESS_TOKEN)
@@ -21,22 +21,38 @@ export async function getAccessToken() {
 
   // Stored access token is not valid
   if (!expiresAt || expiresAt < currentTime) {
-    await chrome.storage.local.remove(constants.STORAGE_KEY_AUTH_ACCESS_TOKEN);
+    return refreshAccessToken(callFromBackground);
+  }
+  // Stored access token is valid
+  else {
+    return jwtToken;
+  }
+}
 
-    // Check refresh token validity
-    let refreshToken = (
-      await chrome.storage.local.get(constants.STORAGE_KEY_AUTH_REFRESH_TOKEN)
-    )[constants.STORAGE_KEY_AUTH_REFRESH_TOKEN];
-    let decodedAuthInfo2 = refreshToken ? jwt_decode(refreshToken) : null;
-    let expiresAt2 = decodedAuthInfo2 ? decodedAuthInfo2.exp : null;
-    if (!expiresAt2 || expiresAt2 < currentTime) {
-      await chrome.storage.local.remove(
-        constants.STORAGE_KEY_AUTH_REFRESH_TOKEN
-      );
-      return null;
-    }
+/**
+ * Refresh JWT access token
+ * Request access token from server and return it
+ * If refresh token is invalid, return null
+ * @returns
+ */
+export async function refreshAccessToken(callFromBackground = true) {
+  await chrome.storage.local.remove(constants.STORAGE_KEY_AUTH_ACCESS_TOKEN);
+  var currentTime = Math.floor(Date.now() / 1000);
 
-    // Request access token to server
+  // Check refresh token validity
+  let refreshToken = (
+    await chrome.storage.local.get(constants.STORAGE_KEY_AUTH_REFRESH_TOKEN)
+  )[constants.STORAGE_KEY_AUTH_REFRESH_TOKEN];
+  let decodedAuthInfo2 = refreshToken ? jwt_decode(refreshToken) : null;
+  let expiresAt2 = decodedAuthInfo2 ? decodedAuthInfo2.exp : null;
+  if (!expiresAt2 || expiresAt2 < currentTime) {
+    await chrome.storage.local.remove(constants.STORAGE_KEY_AUTH_REFRESH_TOKEN);
+    return null;
+  }
+
+  // Request access token to server
+  let data;
+  if (callFromBackground) {
     const response = await fetch(
       `${constants.SERVER_ADDRESS}/api/users/auth/refresh`,
       {
@@ -49,19 +65,23 @@ export async function getAccessToken() {
         }),
       }
     );
-
     if (!response.ok) {
       // throw new Error("Request failed with status: " + response.status);
       return null;
     }
-    const data = await response.json();
-    await chrome.storage.local.set({
-      jwtToken: data.accessToken,
-    });
-    return data.accessToken;
+    data = await response.json();
+  } else {
+    data = (
+      await chrome.runtime.sendMessage({
+        action: constants.ACTION_REFRESH_ACCESS_TOKEN,
+        refreshToken: refreshToken,
+      })
+    ).data;
   }
-  // Stored access token is valid
-  else {
-    return jwtToken;
-  }
+
+  console.log(`refresh success! ${callFromBackground}`);
+  await chrome.storage.local.set({
+    jwtToken: data.accessToken,
+  });
+  return data.accessToken;
 }

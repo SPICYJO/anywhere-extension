@@ -1,3 +1,4 @@
+import { getAccessToken } from "../utils/auth-utils.js";
 import * as constants from "../utils/constants.js";
 import { getTimeSinceString } from "../utils/date-utils.js";
 import { getCanonicalUrl } from "../utils/url-utils.js";
@@ -15,6 +16,26 @@ document.getElementById("google-signin").addEventListener("click", () => {
   console.log("sign in called");
   chrome.runtime.sendMessage({ action: "startGoogleSignIn" });
 });
+
+document
+  .getElementById("change-nickname")
+  .addEventListener("click", async function () {
+    let jwtToken = await getAccessToken();
+    let decodedAuthInfo = jwt_decode(jwtToken);
+    let userNickname = decodedAuthInfo.user.nickname;
+    let nickname = prompt("Please enter the nickname", userNickname);
+    if (nickname) {
+      const response = await chrome.runtime.sendMessage({
+        action: constants.ACTION_CHANGE_NICKNAME,
+        nickname: nickname,
+      });
+      if (response.success) {
+        document.getElementById("nickname-text").textContent = nickname;
+      } else {
+        console.log("Edit failed...");
+      }
+    }
+  });
 
 // Handle pagination click
 function handlePaginationClick(event) {
@@ -127,6 +148,7 @@ document
     console.log("sign out called");
     await chrome.runtime.sendMessage({ action: "startSignOut" });
     await chrome.storage.local.remove(constants.STORAGE_KEY_AUTH_ACCESS_TOKEN);
+    await chrome.storage.local.remove(constants.STORAGE_KEY_AUTH_REFRESH_TOKEN);
     await updateLoginUI();
   });
 
@@ -326,19 +348,23 @@ async function fetchComments() {
  * Update log in status UI
  */
 async function updateLoginUI() {
-  let jwtToken = await chrome.storage.local.get(
-    constants.STORAGE_KEY_AUTH_ACCESS_TOKEN
-  );
-  console.log(jwtToken);
-  let jwtTokenExists =
-    jwtToken &&
-    jwtToken.hasOwnProperty(constants.STORAGE_KEY_AUTH_ACCESS_TOKEN);
-  if (jwtTokenExists) {
+  let jwtToken = await getAccessToken(false);
+  if (jwtToken) {
     document.getElementById("google-signin").classList.add("hidden");
     document.getElementById("google-signout").classList.remove("hidden");
+    document.getElementById("signed-in-text").classList.remove("hidden");
+    document.getElementById("signed-in-div").classList.remove("hidden");
+    document.getElementById("signed-out-text").classList.add("hidden");
+
+    let decodedAuthInfo = jwt_decode(jwtToken);
+    let userNickname = decodedAuthInfo.user.nickname;
+    document.getElementById("nickname-text").textContent = userNickname;
   } else {
     document.getElementById("google-signin").classList.remove("hidden");
     document.getElementById("google-signout").classList.add("hidden");
+    document.getElementById("signed-in-text").classList.add("hidden");
+    document.getElementById("signed-in-div").classList.add("hidden");
+    document.getElementById("signed-out-text").classList.remove("hidden");
   }
 }
 

@@ -4,6 +4,7 @@ const Router = require('koa-router');
 const User = require('models/user');
 const RefreshToken = require('models/refresh-token');
 const UserModel = require('models/user-model');
+const MAX_NICKNAME_LENGTH = 30;
 
 // Load .env file
 require('dotenv').config({ path: 'env/.env' });
@@ -44,15 +45,97 @@ passport.use(
           provider: 'google',
           providerAccessToken: accessToken,
           providerId: profile.id,
-          nickname: 'test', // TODO
+          nickname: generateFunnyNickname(),
         });
       } else {
         user.lastLoginAt = Date.now();
       }
       await user.save();
-      done(null, new UserModel(user.id, user.email, user.nickname));
+      done(null, new UserModel(user.id, user.nickname));
     },
   ),
+);
+
+function generateFunnyNickname() {
+  const adjectives = [
+    'Funny',
+    'Crazy',
+    'Silly',
+    'Goofy',
+    'Cheeky',
+    'Wacky',
+    'Quirky',
+    'Whimsical',
+    'Zany',
+    'Playful',
+    'Bouncy',
+    'Charming',
+    'Dizzy',
+    'Kooky',
+    'Lively',
+    'Perky',
+    'Saucy',
+    'Snoopy',
+    'Zippy',
+    'Nutty',
+  ];
+
+  const nouns = [
+    'Banana',
+    'Squirrel',
+    'Penguin',
+    'Taco',
+    'Noodle',
+    'Bubble',
+    'Jellybean',
+    'Doughnut',
+    'Pickle',
+    'Lollipop',
+    'Panda',
+    'Cupcake',
+    'Marshmallow',
+    'Walrus',
+    'Giraffe',
+    'Kangaroo',
+    'Sushi',
+    'Turtle',
+    'Waffle',
+    'Zebra',
+  ];
+
+  const randomAdjective =
+    adjectives[Math.floor(Math.random() * adjectives.length)];
+  const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+
+  const nickname = randomAdjective + randomNoun;
+
+  return nickname.length <= 20 ? nickname : generateFunnyNickname();
+}
+
+// Change nickname
+users.put(
+  '/nickname',
+  passport.authenticate('jwt', {
+    session: false,
+  }),
+  async (ctx) => {
+    const { id: userId } = ctx.state.user.user;
+    const { nickname } = ctx.request.body;
+
+    // Validation
+    const user = await User.findById(userId);
+    if (!user || nickname.length > MAX_NICKNAME_LENGTH) {
+      return ctx.throw(400);
+    }
+
+    user.nickname = nickname;
+    user.modifiedAt = Date.now();
+    await user.save();
+
+    ctx.body = {
+      nickname,
+    };
+  },
 );
 
 // Define routes
@@ -134,7 +217,7 @@ users.post('/auth/refresh', async (ctx) => {
   }
 
   // Generate access token
-  let userModel = new UserModel(user.id, user.email, user.nickname);
+  let userModel = new UserModel(user.id, user.nickname);
   const accessToken = jwt.sign(
     { user: userModel },
     process.env.ACCESS_TOKEN_JWT_SECRET,

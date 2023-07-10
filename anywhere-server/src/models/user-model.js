@@ -1,8 +1,7 @@
 // This class is for JWT serialization/deserialization
 class UserModel {
-  constructor(id, email, nickname) {
+  constructor(id, nickname) {
     this.id = id;
-    this.email = email;
     this.nickname = nickname;
   }
 }

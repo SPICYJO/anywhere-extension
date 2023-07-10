@@ -9,8 +9,16 @@
   </head>
   <body>
     <h1>Anywhere Extension</h1>
-    <button id="google-signin">Sign in with Google</button>
-    <button id="google-signout">Sign out</button>
+    <div class="space-between">
+      <span id="signed-out-text">Sign in to leave a comment.</span>
+      <span id="signed-in-text"
+        >Welcome, <span id="nickname-text"></span>!</span>
+      <button id="google-signin">Sign in with Google</button>
+      <div id="signed-in-div">
+        <button id="change-nickname">Change nickname</button>
+        <button id="google-signout">Sign out</button>
+      </div>
+    </div>
     <p>Current URL: <span id="current-url"></span></p>
 
     <div class="comment-section">
