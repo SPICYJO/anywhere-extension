@@ -32,4 +32,8 @@ Comment.statics.findByTargetCanonicalUrl = function (
     .exec();
 };
 
+Comment.statics.countByTargetCanonicalUrl = function (targetCanonicalUrl) {
+  return this.countDocuments({ targetCanonicalUrl }).exec();
+};
+
 module.exports = mongoose.model('Comment', Comment);

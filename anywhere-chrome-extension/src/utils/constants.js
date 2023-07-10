@@ -1,6 +1,6 @@
 // Server
-// export const SERVER_ADDRESS = "http://localhost:4000";
-export const SERVER_ADDRESS = "https://dev-anywhere-api.seungwoojo.com";
+export const SERVER_ADDRESS = "http://localhost:4000";
+// export const SERVER_ADDRESS = "https://dev-anywhere-api.seungwoojo.com";
 
 // Storage keys
 export const STORAGE_KEY_AUTH_ACCESS_TOKEN = "jwtToken";

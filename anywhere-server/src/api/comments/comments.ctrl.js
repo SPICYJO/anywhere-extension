@@ -37,6 +37,30 @@ exports.listComments = async (ctx) => {
 };
 
 /**
+ * Count comments
+ * @param {} ctx
+ */
+exports.countComments = async (ctx) => {
+  // Request
+  const { targetCanonicalUrl } = ctx.query;
+
+  // Validation
+  if (
+    targetCanonicalUrl.length > MAX_URL_LENGTH
+  ) {
+    return ctx.throw(400);
+  }
+
+  // Action
+  const count = await Comment.countByTargetCanonicalUrl(
+    targetCanonicalUrl
+  );
+
+  // Response
+  ctx.body = { count };
+};
+
+/**
  * Create comment
  * @param {*} ctx
  * @returns

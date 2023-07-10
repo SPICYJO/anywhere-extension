@@ -21,6 +21,7 @@ api.use(async (ctx, next) => {
   }
 });
 
+api.get('/comments/count', apiCtrl.countComments);
 api.get('/comments', apiCtrl.listComments);
 api.post(
   '/comments',
