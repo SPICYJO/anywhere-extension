@@ -25,7 +25,7 @@ Project Name: Anywhere
 ## Timeline
 - Project deadline
   - Jul 11 (TUE), 2023 @ 5:00pm EDT
-  - Jul 10 (MON), 2023 @ 6:00am KST
+  - Jul 12 (WED), 2023 @ 6:00am KST
 - Project started on Jul 3 (MON), 2023 in KST
 - Timezone is in KST unless otherwise specified
 
@@ -35,8 +35,9 @@ Project Name: Anywhere
 - [x] Jul 06 Application server - auth (refresh token)
 - [x] Jul 07 Application server - learn gcp and gke, deploy dev app to gke cluster
 - [x] Jul 08 Application server - refactor code, learn gcp and gke
-- [ ] Jul 09 Finish up & Demo video etc
-
+- [x] Jul 09 Deploy prod app server
+- [ ] Jul 10 Web - Submit extensions to store (chrome, safari etc), develop website, test
+- [ ] Jul 11 Finish up & Slides & Demo video etc
 
 ## Spec
 
