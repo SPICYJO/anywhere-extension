@@ -32,6 +32,7 @@
 
 .comment-text {
   margin-bottom: 10px;
+  white-space: pre;
 }
 
 .comment-form {

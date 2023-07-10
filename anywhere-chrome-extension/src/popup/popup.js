@@ -155,6 +155,11 @@ document
 let registerCommentFunction = async () => {
   console.log("comment register called!");
   const content = document.getElementById("content-input").value;
+
+  if (!content || content.trim() === "") {
+    return;
+  }
+
   const response = await chrome.runtime.sendMessage({
     action: constants.ACTION_REGISTER_COMMENT,
     content: content,
