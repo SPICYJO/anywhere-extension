@@ -407,7 +407,10 @@ async function updateLoginUI() {
  * Update url UI
  */
 async function updateUrlUI() {
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  const tabs = await chrome.tabs.query({
+    active: true,
+    lastFocusedWindow: true,
+  });
   const currentTab = tabs[0];
 
   document.getElementById("current-url").innerText = getCanonicalUrl(

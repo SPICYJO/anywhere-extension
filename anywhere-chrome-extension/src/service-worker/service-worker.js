@@ -22,26 +22,18 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
     return;
   }
 
-  updateBadgeCount(activeTab.url);
+  updateBadgeCount(activeTab.url, activeInfo.tabId);
 });
 
 // Badge - Listen to tab url change event
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-  const tabs = await chrome.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
-  console.log(tabs);
-  const currentTab = tabs[0];
-  console.log(`${tabId} : ${currentTab.id}`);
-
-  if (tabId === currentTab.id && changeInfo.url) {
-    console.log(`Tab url changed! ${changeInfo.url}`);
-    updateBadgeCount(changeInfo.url);
+  if (tabId && tab.url && tab.status === "complete") {
+    console.log(`Tab url changed! ${tab.url}`);
+    updateBadgeCount(tab.url, tabId);
   }
 });
 
-async function updateBadgeCount(url) {
+async function updateBadgeCount(url, tabId) {
   const canonicalUrl = getCanonicalUrl(url);
   const response = await fetch(
     `${
@@ -64,12 +56,13 @@ async function updateBadgeCount(url) {
   const { count } = await response.json();
   const countString = count > 999 ? "999+" : `${count}`;
   chrome.action.setBadgeText({
+    ...(tabId && { tabId }),
     text: countString,
   });
 }
 
-async function increaseBadgeCount(delta) {
-  const text = await chrome.action.getBadgeText({});
+async function increaseBadgeCount(delta, tabId) {
+  const text = await chrome.action.getBadgeText({ tabId });
   console.log(`current badge text: ${text}`);
 
   if (text === "999+") {
@@ -83,6 +76,7 @@ async function increaseBadgeCount(delta) {
   currentCount = currentCount + delta;
   const countString = currentCount > 999 ? "999+" : `${currentCount}`;
   chrome.action.setBadgeText({
+    ...(tabId && { tabId }),
     text: countString,
   });
 }
@@ -161,7 +155,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         try {
           const tabs = await chrome.tabs.query({
             active: true,
-            currentWindow: true,
+            lastFocusedWindow: true,
           });
           console.log(tabs);
           const currentTab = tabs[0];
@@ -188,7 +182,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
           }
 
           const data = await response.json();
-          increaseBadgeCount(1);
+          increaseBadgeCount(1, currentTab.id);
           sendResponse({ success: true, data: data });
         } catch (error) {
           sendResponse({ success: false, error: error.message });
@@ -239,6 +233,13 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
           return;
         }
 
+        const tabs = await chrome.tabs.query({
+          active: true,
+          lastFocusedWindow: true,
+        });
+        console.log(tabs);
+        const currentTab = tabs[0];
+
         try {
           const response = await fetch(
             `${constants.SERVER_ADDRESS}/api/comments/${request.commentId}`,
@@ -256,7 +257,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
           }
 
           const data = await response.json();
-          increaseBadgeCount(-1);
+          increaseBadgeCount(-1, currentTab.id);
           sendResponse({ success: true, data: data });
         } catch (error) {
           sendResponse({ success: false, error: error.message });
@@ -269,7 +270,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         try {
           const tabs = await chrome.tabs.query({
             active: true,
-            currentWindow: true,
+            lastFocusedWindow: true,
           });
           console.log(tabs);
           const currentTab = tabs[0];
