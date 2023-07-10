@@ -258,10 +258,7 @@ async function fetchComments() {
     console.log(response.data.contents);
     const commentList = document.querySelector(".comment-list");
 
-    let jwtToken = (
-      await chrome.storage.local.get(constants.STORAGE_KEY_AUTH_ACCESS_TOKEN)
-    )[constants.STORAGE_KEY_AUTH_ACCESS_TOKEN];
-    console.log(jwtToken);
+    let jwtToken = await getAccessToken(false);
 
     let decodedAuthInfo = jwtToken ? jwt_decode(jwtToken) : null;
     console.log(decodedAuthInfo);
@@ -355,6 +352,9 @@ async function updateLoginUI() {
     document.getElementById("signed-in-text").classList.remove("hidden");
     document.getElementById("signed-in-div").classList.remove("hidden");
     document.getElementById("signed-out-text").classList.add("hidden");
+    document.getElementById("content-input").disabled = false;
+    document.getElementById("content-input").textContent = "";
+    document.getElementById("submit-button").disabled = false;
 
     let decodedAuthInfo = jwt_decode(jwtToken);
     let userNickname = decodedAuthInfo.user.nickname;
@@ -365,6 +365,20 @@ async function updateLoginUI() {
     document.getElementById("signed-in-text").classList.add("hidden");
     document.getElementById("signed-in-div").classList.add("hidden");
     document.getElementById("signed-out-text").classList.remove("hidden");
+    Array.from(document.getElementsByClassName("delete-button")).forEach(
+      (ele) => {
+        ele.classList.add("hidden");
+      }
+    );
+    Array.from(document.getElementsByClassName("edit-button")).forEach(
+      (ele) => {
+        ele.classList.add("hidden");
+      }
+    );
+    document.getElementById("content-input").disabled = true;
+    document.getElementById("content-input").textContent =
+      "Please sign in to write a comment.";
+    document.getElementById("submit-button").disabled = true;
   }
 }
 
