@@ -1,4 +1,4 @@
-Project Name: Anywhere
+# Project Name: Anywhere Comment Extension
 
 ## Overview
 - A software that lets you write and read comments on any website
@@ -6,21 +6,19 @@ Project Name: Anywhere
 ## Features
 - Read comments on the website
 - Write comment on the website
+- View count of comments on the website
 - Authentication (required for writing a comment)
-- View popular websites (to which most comments are added recently)
 
 ## Components
 
 ### Apps
 - Chrome extension (for desktop browsers)
 - Website (mainly for mobile browsers which doesn't have extension)
-- Application server (serves comments)
+- Application server (serves comments REST API)
 
 ### Infrastructures
 - MongoDB (saves comments data)
-- BigQuery (business insights and also for aggregation)
 - GKE (k8s for managing application server)
-- Apigee, KMS (maybe?)
 
 ## Timeline
 - Project deadline
@@ -36,8 +34,8 @@ Project Name: Anywhere
 - [x] Jul 07 Application server - learn gcp and gke, deploy dev app to gke cluster
 - [x] Jul 08 Application server - refactor code, learn gcp and gke
 - [x] Jul 09 Deploy prod app server
-- [ ] Jul 10 Web - Submit extensions to store (chrome, safari etc), develop website, test
-- [ ] Jul 11 Finish up & Slides & Demo video etc
+- [x] Jul 10 Web - Submit extensions to store (chrome, safari etc), develop website, test
+- [x] Jul 11 Finish up & Slides & Demo video etc
 
 ## Spec
 
