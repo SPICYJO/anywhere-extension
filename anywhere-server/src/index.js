@@ -3,18 +3,26 @@ const Router = require('koa-router');
 const bodyParser = require('koa-bodyparser');
 const api = require('./api');
 const passport = require('koa-passport');
+const cors = require('@koa/cors');
 
 // Load .env file
 require('dotenv').config({ path: 'env/.env' });
 
 // Logging settings
 if (process.env.ENV === 'PROD') {
-  console.log = function() {};
+  console.log = function () {};
 }
 
 // Koa settings
 const app = new Koa();
 const router = new Router();
+
+// CORS
+app.use(
+  cors({
+    origin: process.env.CORS_ALLOW_ORIGIN,
+  }),
+);
 
 // Initialize Passport (Auth)
 app.use(passport.initialize());

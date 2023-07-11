@@ -20,18 +20,25 @@ exports.listComments = async (ctx) => {
     page >= 2048 ||
     size < 0 ||
     size > 50 ||
-    targetCanonicalUrl.length > MAX_URL_LENGTH
+    (targetCanonicalUrl && targetCanonicalUrl.length > MAX_URL_LENGTH)
   ) {
     return ctx.throw(400);
   }
 
   // Action
-  const comments = await Comment.findByTargetCanonicalUrl(
-    targetCanonicalUrl,
-    page,
-    size,
-  );
-  const count = await Comment.countByTargetCanonicalUrl(targetCanonicalUrl);
+  let comments;
+  let count;
+  if (targetCanonicalUrl) {
+    comments = await Comment.findByTargetCanonicalUrl(
+      targetCanonicalUrl,
+      page,
+      size,
+    );
+    count = await Comment.countByTargetCanonicalUrl(targetCanonicalUrl);
+  } else {
+    comments = await Comment.findAllPaging(page, size);
+    count = await Comment.countAll();
+  }
 
   // Response
   ctx.body = {

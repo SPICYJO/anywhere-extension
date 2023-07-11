@@ -32,6 +32,20 @@ Comment.statics.findByTargetCanonicalUrl = function (
     .exec();
 };
 
+Comment.statics.findAllPaging = function (page = 0, size = 10) {
+  const skipCount = page * size;
+
+  return this.find({})
+    .sort({ createdAt: -1 })
+    .skip(skipCount)
+    .limit(size)
+    .exec();
+};
+
+Comment.statics.countAll = function () {
+  return this.countDocuments({}).exec();
+};
+
 Comment.statics.countByTargetCanonicalUrl = function (targetCanonicalUrl) {
   return this.countDocuments({ targetCanonicalUrl }).exec();
 };
