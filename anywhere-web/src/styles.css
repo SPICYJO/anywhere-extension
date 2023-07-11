@@ -33,6 +33,7 @@
 
 .comment-content {
   flex-grow: 1;
+  overflow: hidden;
 }
 
 .comment-author {
@@ -182,7 +183,7 @@ form.url-form {
   display: flex;
 }
 
-form.url-form input[type=url] {
+form.url-form input[type="url"] {
   flex: 1;
   padding: 10px 10px;
 }
@@ -190,4 +191,19 @@ form.url-form input[type=url] {
 form.url-form button {
   flex: 0, 0, 40px;
   padding: 10px 10px;
+}
+
+a {
+  color: blue;
+}
+.comment-target-wrapper {
+  width: 100%;
+  overflow: hidden;
+}
+
+.comment-target-url {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
