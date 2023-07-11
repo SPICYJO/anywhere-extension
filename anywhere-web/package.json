@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "parcel build index.html 404.html",
-    "start": "parcel index.html",
+    "build-dev": "parcel build src/index.html src/404.html",
+    "build": "rm -rf dist/* && parcel build src/index.html src/404.html --no-source-maps",
+    "start": "parcel src/index.html",
     "deploy-dev": "(source ./env-dev.sh && npm run build && gcloud storage rsync ./dist/ gs://${BUCKET_NAME}/)",
     "deploy-prod": "(source ./env-prod.sh && npm run build && gcloud storage rsync ./dist/ gs://${BUCKET_NAME}/)",
     "test": "echo \"Error: no test specified\" && exit 1"
