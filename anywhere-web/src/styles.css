@@ -1,3 +1,7 @@
+html {
+  font-family: 'Roboto', sans-serif;
+}
+
 .header-section {
   width: 500px;
   margin: 0 auto;
