@@ -3,20 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Comment Anywhere</title>
     <link rel="stylesheet" href="styles.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+    <link rel="icon" href="favicon.ico" />
   </head>
   <body>
     <!-- Header section content -->
     <header class="header-section">
       <h1 style="margin-bottom: 10px">Anywhere Comment</h1>
-      <p style="margin-top: 0px">
+      <p style="margin-top: 0px; margin-bottom: 0px;">
         You can write comment in any website with our Anywhere comment
         extension. Get it on Chrome Web Store!
+      </p>
+      <p style="margin-top: 4px; color: #aaa">
+        Writing a comment is only supported in the extension.
       </p>
       <form class="url-form">
         <input type="url" placeholder="Enter URL" name="url" id="url-input" />
@@ -51,9 +55,15 @@
                 </div>
               </div>
               <div class="comment-target-wrapper">
-                <a class="comment-target-url" href="https://www.google.com"
-                  >https://www.google.com</a
-                >
+                <a href="https://www.google.com" target="_blank" class="target-url-button grayed-box" style="color: blue;">
+                  <i class="fa-sharp fa-solid fa-house"></i>
+                </a>
+                </span>
+                <div class="grayed-box comment-target-div" style="margin-left: 10px;">
+                  <span class="comment-target-url"
+                    >https://www.google.com</a
+                  >
+                </div>
               </div>
               <div class="space-between">
                 <div class="comment-text">

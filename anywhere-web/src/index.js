@@ -26,6 +26,7 @@ function updateUI() {
     document.getElementById("url-input").value = targetCanonicalUrl;
   } else {
     targetCanonicalUrl = undefined;
+    document.getElementById("url-input").value = "";
   }
   if (pageParam) {
     currentPage = Number(pageParam) - 1;
@@ -80,9 +81,25 @@ async function updateComments(targetCanonicalUrl, page, size) {
     authorElement.textContent = comment.userNickname;
     const textElement = commentInstance.querySelector(".comment-text");
     textElement.textContent = comment.content;
-    const urlElement = commentInstance.querySelector(".comment-target-url");
-    urlElement.textContent = comment.targetCanonicalUrl;
+    const urlElement = commentInstance.querySelector(".target-url-button");
     urlElement.href = comment.targetCanonicalUrl;
+    const urlTextElement = commentInstance.querySelector(".comment-target-url");
+    urlTextElement.textContent = comment.targetCanonicalUrl;
+    const urlDivElement = commentInstance.querySelector(".comment-target-div");
+    urlDivElement.addEventListener("click", function () {
+      console.log("dddd");
+
+      let currentUrl = new URL(location.href);
+      let currentSearchParams = new URLSearchParams(currentUrl.search);
+      currentSearchParams.set("url", comment.targetCanonicalUrl);
+      currentSearchParams.set("page", 1);
+      currentUrl.search = currentSearchParams.toString();
+      targetCanonicalUrl = comment.targetCanonicalUrl;
+      currentPage = 0;
+
+      history.pushState({}, "", currentUrl.toString());
+      updateUI();
+    });
     const createdDateElement =
       commentInstance.querySelector(".registered-date");
     createdDateElement.textContent = getTimeSinceString(
