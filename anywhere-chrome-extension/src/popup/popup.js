@@ -337,6 +337,10 @@ async function fetchComments() {
 
       commentList.appendChild(commentInstance);
     }
+    if (currentPage === 0 && response.data.contents.length === 0) {
+      const textNode = document.createTextNode("There is no comment here yet.");
+      commentList.appendChild(textNode);
+    }
 
     totalPageCount = response.data.totalPageCount;
     renderPagination(currentPage, totalPageCount);
