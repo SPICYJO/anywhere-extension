@@ -17,5 +17,6 @@
     "type": "module"
   },
   "permissions": ["identity", "storage", "tabs"],
-  "host_permissions": ["https://anywhere-api.seungwoojo.com/*"]
+  "host_permissions": ["https://anywhere-api.seungwoojo.com/*"],
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6MrAIWWike5qp/78zMJj9iLCVq7v3qVuFmhtDCHD8/FH2iIMuTkDtrEqy2R3FaWR8JjgfaKylfCkDWuFAKID8fnhCL5Of74FWLho9flWkPnOvxjdAAL4th/z8GzyBxMT2BXsErsKN5HJc4nSQ2js57eeM9O52L9cH+0YcTf1aZMsTNRUs2KcJaBK7/3wynmzyQw9P5mlkutHFiPmmmM1FbY0uLbTcwclLYZrE5QFvJCItIYOzqLObmcxRFjOfE02FZDnc4so4ekwM79g/63Kf0lsbV0ZLfOMmMg9oTXiVTbkLwAQmrIbD+y89BeKLgBYjb3A0BJBFUz0iZo4EqmH3wIDAQAB"
 }

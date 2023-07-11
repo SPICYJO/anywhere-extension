@@ -1,1 +1,1 @@
-export const SERVER_ADDRESS = "http://localhost:4000";
+export const SERVER_ADDRESS = "https://anywhere-api.seungwoojo.com";
