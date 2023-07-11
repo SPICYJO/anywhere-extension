@@ -13,7 +13,6 @@ updateUrlUI();
 
 // UI event handlers
 document.getElementById("google-signin").addEventListener("click", () => {
-  console.log("sign in called");
   chrome.runtime.sendMessage({ action: "startGoogleSignIn" });
 });
 
@@ -32,7 +31,6 @@ document
       if (response.success) {
         document.getElementById("nickname-text").textContent = nickname;
       } else {
-        console.log("Edit failed...");
       }
     }
   });
@@ -46,16 +44,12 @@ function handlePaginationClick(event) {
 
   let nextPage;
   if (page === "prev") {
-    console.log("Go to previous page");
     nextPage = currentPage - 1;
   } else if (page === "next") {
-    console.log("Go to next page");
     nextPage = currentPage + 1;
   } else {
-    console.log(`Go to page ${page}`);
     nextPage = Number(page);
   }
-  console.log(`Go to page ${nextPage}, ${totalPageCount}`);
   if (nextPage < 0 || nextPage >= totalPageCount) {
     return;
   }
@@ -145,7 +139,6 @@ function createEllipsis() {
 document
   .getElementById("google-signout")
   .addEventListener("click", async () => {
-    console.log("sign out called");
     await chrome.runtime.sendMessage({ action: "startSignOut" });
     await chrome.storage.local.remove(constants.STORAGE_KEY_AUTH_ACCESS_TOKEN);
     await chrome.storage.local.remove(constants.STORAGE_KEY_AUTH_REFRESH_TOKEN);
@@ -153,7 +146,6 @@ document
   });
 
 let registerCommentFunction = async () => {
-  console.log("comment register called!");
   const content = document.getElementById("content-input").value;
 
   if (!content || content.trim() === "") {
@@ -165,7 +157,6 @@ let registerCommentFunction = async () => {
     content: content,
   });
   if (response.success) {
-    console.log(response.data);
     const nowString = new Date().toISOString();
 
     const commentList = document.querySelector(".comment-list");
@@ -203,7 +194,6 @@ let registerCommentFunction = async () => {
         if (response.success) {
           textElement.textContent = editedContent;
         } else {
-          console.log("Edit failed...");
         }
       }
     });
@@ -220,7 +210,6 @@ let registerCommentFunction = async () => {
         if (response.success) {
           commentInstance.remove();
         } else {
-          console.log("Delete failed...");
         }
       }
     });
@@ -228,7 +217,6 @@ let registerCommentFunction = async () => {
     commentList.insertBefore(commentInstance, commentList.firstChild);
     document.getElementById("content-input").value = "";
   } else {
-    console.log("Register failed...");
   }
 };
 
@@ -251,7 +239,6 @@ document
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   if (message.action === "authResult") {
     // Handle the authentication result or JWT response
-    console.log(message.authResult);
 
     let jwtToken = getQueryParam(message.authResult, "token");
     let refreshToken = getQueryParam(message.authResult, "refreshToken");
@@ -276,13 +263,11 @@ async function fetchComments() {
   });
 
   if (response.success) {
-    console.log(response.data.contents);
     const commentList = document.querySelector(".comment-list");
 
     let jwtToken = await getAccessToken(false);
 
     let decodedAuthInfo = jwtToken ? jwt_decode(jwtToken) : null;
-    console.log(decodedAuthInfo);
     let currentUserId = decodedAuthInfo ? decodedAuthInfo.user.id : null;
 
     while (commentList.firstChild) {
@@ -330,7 +315,6 @@ async function fetchComments() {
             if (response.success) {
               textElement.textContent = editedContent;
             } else {
-              console.log("Edit failed...");
             }
           }
         });
@@ -346,7 +330,6 @@ async function fetchComments() {
             if (response.success) {
               commentInstance.remove();
             } else {
-              console.log("Delete failed...");
             }
           }
         });
@@ -358,7 +341,6 @@ async function fetchComments() {
     totalPageCount = response.data.totalPageCount;
     renderPagination(currentPage, totalPageCount);
   } else {
-    console.log(`Fetch failed... ${response.error}`);
   }
 }
 
