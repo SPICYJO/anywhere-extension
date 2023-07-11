@@ -6,6 +6,11 @@ Extension that enables you to comment on any website.
 
 This project is made by Seungwoo Jo and submitted to [Atlas Madness Hackathon](https://atlasmadness.devpost.com/).
 
+Available on the following link.
+
+- Extension (Chrome Web Store): https://chrome.google.com/webstore/detail/anywhere-comment-extensio/iedldbceicpbnlnkooemekofheoieppc
+- Web: https://anywhere.seungwoojo.com
+
 ## Source code directory structure
 
 ```
